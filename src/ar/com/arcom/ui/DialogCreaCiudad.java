@@ -5,19 +5,17 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.text.MaskFormatter;
 import java.awt.*;
 import java.awt.event.*;
-import java.text.ParseException;
 import java.util.Random;
 
-public class WorldSize2 extends JDialog {
+public class DialogCreaCiudad extends JDialog {
     private final JPanel contentPane;
     private JLabel jlb_title;
     private JCheckBox jcb_random;
     private JTextField ftf_width, ftf_height;
 
-    public WorldSize2(Frame owner) {
+    public DialogCreaCiudad(Frame owner) {
         super(owner);
         setUndecorated(true);
         setSize(255, 210);
@@ -44,7 +42,7 @@ public class WorldSize2 extends JDialog {
         panel.setLayout(null);
 
         JButton jbn_gen = new JButton("Generar");
-        jbn_gen.addActionListener(new WorldSize2.EventoBoton());
+        jbn_gen.addActionListener(new DialogCreaCiudad.EventoBoton());
         jbn_gen.setActionCommand("cmd_gen");
         jbn_gen.setBounds(121, 129, 100, 21);
         panel.add(jbn_gen);
@@ -91,7 +89,7 @@ public class WorldSize2 extends JDialog {
         jtp_info.setFocusable(false);
         jtp_info.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
         jtp_info.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-        jtp_info.setText("*Los datos ingresados tienen que ser pares.");
+        jtp_info.setText("*Los datos ingresados tienen que ser pares y mayores que 0.");
         jtp_info.setOpaque(false);
         jtp_info.setEditable(false);
         jtp_info.setBounds(12, 35, 209, 42);
@@ -119,7 +117,8 @@ public class WorldSize2 extends JDialog {
             if(ac.equals("cmd_gen")) {
                 if(jcb_random.isSelected()){
                     Random random = new Random();
-                    ((GUI) getOwner()).createCity(random.nextInt(100)*2,random.nextInt(100)*2);
+                    ((GUI) getOwner()).createCity((random.nextInt(1000)+1)*2,(random.nextInt(1000)+1)*2);
+
                     dispose();
                 } else if(!ftf_height.getText().equals("") && !ftf_width.getText().equals("") &&
                         Integer.parseInt(ftf_height.getText())%2 == 0 && Integer.parseInt(ftf_width.getText())%2 == 0 &&
@@ -148,18 +147,5 @@ public class WorldSize2 extends JDialog {
                 ftf_height.setEditable(true);
             }
         }
-    }
-
-    public static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    WorldSize2 frame = new WorldSize2(new GUI());
-                    frame.setVisible(true);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
     }
 }

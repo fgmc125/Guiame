@@ -7,19 +7,27 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 
 public class GUI extends JFrame {
 
     private JPanel contentPane;
-    private Ciudad ciudad;
+    private LaminaCiudad laminaCiudad;
     private boolean refresh;
 
+    // Atributos para MenuBar
+    private final String[] ETIQUETAS_MENU_BAR = {"Archivo","Ver","Herramientas","Ayuda"};
+    private final String[] ETIQUETAS_MENU_ITEMS = {"0_Nueva laminaCiudad","0*","0_Salir","1_Informacion general",
+            "1_Panel de personas","1_Panel de autos","1*","1_Tablas de datos","2_Controles","3_Acerca de..."};
+    private ArrayList<JMenu> componentArrayList;
+    private ArrayList<JMenuItem> menuItemArrayList;
     public GUI() throws HeadlessException {
         super();
         initialize();
     }
 
     private void initialize(){
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(true);
         setLocationRelativeTo(null);
         Dimension pantalla = Toolkit.getDefaultToolkit().getScreenSize();
@@ -41,11 +49,13 @@ public class GUI extends JFrame {
 
         refresh = false;
 
+        initializeMenuBar();
+
         setVisible(true);
         createCity(0,0);
-        scrollPane.setViewportView(ciudad);
+        scrollPane.setViewportView(laminaCiudad);
 
-        WorldSize2 dialog = new WorldSize2(this);
+        DialogCreaCiudad dialog = new DialogCreaCiudad(this);
         dialog.setModal(true);
         dialog.setVisible(true);
 
@@ -57,19 +67,60 @@ public class GUI extends JFrame {
     }
 
     public void createCity(int width, int height){
-        if(ciudad!=null){
-            ciudad.setWidthBox(width);
-            ciudad.setHeightBox(height);
-            ciudad.setPreferredSize(new Dimension(width*26,height*26));
+        if(laminaCiudad !=null){
+            laminaCiudad.setWidthBox(width);
+            laminaCiudad.setHeightBox(height);
+            laminaCiudad.setPreferredSize(new Dimension(width*26,height*26));
             refresh = true;
-            if(width > 0 && height > 0) ciudad.setVisibleInternalFrame(true);
+            if(width > 0 && height > 0) laminaCiudad.setVisibleInternalFrame(true);
         } else {
-            ciudad = new Ciudad(width,height);
-            ciudad.setOpaque(false);
-            ciudad.addMouseListener(new EventoRaton(this.getLocationOnScreen()));
-            ciudad.setBackground(Color.WHITE);
-            ciudad.setPreferredSize(new Dimension(width*26,height*26));
-            if(width > 0 && height > 0) ciudad.setVisibleInternalFrame(true);
+            laminaCiudad = new LaminaCiudad(width,height);
+            laminaCiudad.setOpaque(false);
+            laminaCiudad.addMouseListener(new EventoRaton(this.getLocationOnScreen()));
+            laminaCiudad.setBackground(Color.WHITE);
+            laminaCiudad.setPreferredSize(new Dimension(width*26,height*26));
+            if(width > 0 && height > 0) laminaCiudad.setVisibleInternalFrame(true);
+        }
+    }
+
+    private void initializeMenuBar(){
+        componentArrayList = new ArrayList<>() ;
+        JMenuBar menuBar = new JMenuBar();
+        setJMenuBar(menuBar);
+        menuItemArrayList = new ArrayList<>();
+
+        for(int i = 0; i<ETIQUETAS_MENU_BAR.length;i++){
+            componentArrayList.add(new JMenu(ETIQUETAS_MENU_BAR[i]));
+            menuBar.add(componentArrayList.get(i));
+        }
+        for(int i = 0; i<ETIQUETAS_MENU_ITEMS.length;i++){
+            if(ETIQUETAS_MENU_ITEMS[i].charAt(1) != '*'){
+                menuItemArrayList.add(new JMenuItem(ETIQUETAS_MENU_ITEMS[i].substring(ETIQUETAS_MENU_ITEMS[i].indexOf("_")+1)));
+                menuItemArrayList.get(i).addActionListener(new EventoBoton());
+                menuItemArrayList.get(i).setActionCommand("cmd_"+ ETIQUETAS_MENU_ITEMS[i].substring(ETIQUETAS_MENU_ITEMS[i].indexOf("_")+1).toLowerCase());
+                System.out.println(menuItemArrayList.get(i).getActionCommand());
+                componentArrayList.get(Integer.parseInt(""+ETIQUETAS_MENU_ITEMS[i].charAt(0))).add(menuItemArrayList.get(i));
+            } else {
+                menuItemArrayList.add(null);
+                (componentArrayList.get(Integer.parseInt(""+ETIQUETAS_MENU_ITEMS[i].charAt(0)))).add(new JSeparator());
+            }
+        }
+    }
+
+    private class EventoBoton implements ActionListener {
+        public void actionPerformed(ActionEvent e) {
+            String ac = e.getActionCommand();
+            System.out.println(ac);
+            if(ac.equals("cmd_invert")) {
+
+            } else if(ac.equals("cmd_salir")) {
+
+            } else if(ac.equals("cmd_informacion general")) {
+                laminaCiudad.displayInternalFrame(new InternalFrameVistaGeneral("Vista General"));
+            } else if(ac.equals("cmd_panel de personas")) {
+                laminaCiudad.displayInternalFrame(new InternalFramePersonas("Panel de Personas"));
+            }
+
         }
     }
 
@@ -105,18 +156,18 @@ public class GUI extends JFrame {
 
             int[] aux = verifica((int)(aux_posX*25)-5, (int) (aux_posY*25)-5);
 
-            if(aux[0] >= 25 && aux[1] >= 25 && aux[0] <= ciudad.getWidthBox()*25 && aux[1] <= ciudad.getHeightBox()*25){
-                if(ciudad.ftf_desde.isFocusOwner()) {
-                    ciudad.setXY(aux[0], aux[1]);
-                    ciudad.drawPointA = true;
-                } else if(ciudad.ftf_desde.getText().equals("")) ciudad.drawPointA = false;
+            if(aux[0] >= 25 && aux[1] >= 25 && aux[0] <= laminaCiudad.getWidthBox()*25 && aux[1] <= laminaCiudad.getHeightBox()*25){
+                if(laminaCiudad.ftf_desde.isFocusOwner()) {
+                    laminaCiudad.setXY(aux[0], aux[1]);
+                    laminaCiudad.drawPointA = true;
+                } else if(laminaCiudad.ftf_desde.getText().equals("")) laminaCiudad.drawPointA = false;
 
-                if(ciudad.ftf_hasta.isFocusOwner()) {
-                    ciudad.setAB(aux[0],aux[1]);
-                    ciudad.drawPointB = true;
-                } else if(ciudad.ftf_hasta.getText().equals("")) ciudad.drawPointB = false;
+                if(laminaCiudad.ftf_hasta.isFocusOwner()) {
+                    laminaCiudad.setAB(aux[0],aux[1]);
+                    laminaCiudad.drawPointB = true;
+                } else if(laminaCiudad.ftf_hasta.getText().equals("")) laminaCiudad.drawPointB = false;
             }
-            ciudad.repaint();
+            laminaCiudad.repaint();
         }
 
         private int[] verifica(int x, int y){
@@ -127,16 +178,6 @@ public class GUI extends JFrame {
             if(y>=(b*25)+12.5f) b = (b + 1) * 25; else b *= 25;
 
             if (Math.abs(x-a) <= Math.abs(y-b)) return new int[]{a+25,y+25}; else return new int[]{x+25,b+25};
-        }
-    }
-
-    public static void main(String[] args) {
-        try {
-            GUI gui = new GUI();
-            gui.setDefaultCloseOperation(EXIT_ON_CLOSE);
-            gui.setVisible(true);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

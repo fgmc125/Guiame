@@ -5,7 +5,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class Ciudad extends JComponent {
+import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
+
+public class LaminaCiudad extends JComponent {
     private final int ANCHO_CUADRO=25;
     private final int ALTO_CUADRO=25;
 
@@ -17,7 +19,7 @@ public class Ciudad extends JComponent {
     public JFormattedTextField ftf_desde, ftf_hasta;
     private String desde, hasta;
 
-    public Ciudad(int widthBox, int heightBox) {
+    public LaminaCiudad(int widthBox, int heightBox) {
         super();
         this.setLayout(null);
 
@@ -39,11 +41,13 @@ public class Ciudad extends JComponent {
         JPanel panel_1_1 = new JPanel();
         panel_1_1.setLayout(null);
         panel_1_1.setBounds(0, 0, 230, 170);
-        internalFrame.getContentPane().add(panel_1_1);
+        internalFrame.setContentPane(panel_1_1);
 
-        JButton btnNewButton_1 = new JButton("Calcular ruta");
-        btnNewButton_1.setBounds(12, 171, 209, 21);
-        panel_1_1.add(btnNewButton_1);
+        JButton jbn_calcularRuta = new JButton("Calcular ruta");
+        jbn_calcularRuta.addActionListener(new LaminaCiudad.EventoBoton());
+        jbn_calcularRuta.setActionCommand("cmd_calcular");
+        jbn_calcularRuta.setBounds(12, 171, 209, 21);
+        panel_1_1.add(jbn_calcularRuta);
 
         JLabel lblNewLabel_2 = new JLabel("Como llegar...");
         lblNewLabel_2.setHorizontalAlignment(SwingConstants.CENTER);
@@ -76,7 +80,7 @@ public class Ciudad extends JComponent {
         panel_1_1.add(txtpnIngreseElTamao_1);
 
         JButton btnNewButton_1_1 = new JButton("Invertir");
-        btnNewButton_1_1.addActionListener(new EventoBoton());
+        //btnNewButton_1_1.addActionListener(new LaminaCiudad.EventoBoton());
         btnNewButton_1_1.setActionCommand("cmd_invert");
         btnNewButton_1_1.setBounds(118, 138, 100, 21);
         panel_1_1.add(btnNewButton_1_1);
@@ -164,7 +168,15 @@ public class Ciudad extends JComponent {
         return heightBox-1;
     }
 
-    private class EventoBoton implements ActionListener {
+    public void displayInternalFrame(JInternalFrame internalFrame) {
+        this.internalFrame.dispose();
+        this.internalFrame = internalFrame;
+        add(internalFrame);
+        internalFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        internalFrame.setVisible(true);
+    }
+
+    class EventoBoton implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             String ac = e.getActionCommand();
             if(ac.equals("cmd_invert")) {
