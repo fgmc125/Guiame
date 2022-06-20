@@ -17,14 +17,14 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
 
-public class Login extends JDialog {
+public class WorldSize extends JDialog {
     private final JPanel contentPane;
     private JLabel jlb_notific, jlb_user, jlb_pass;
     private JTextField jtf_user;
     private JPasswordField jtf_password;
     private JButton jbn_login, jbn_join, jbn_exit;
 
-    public Login() {
+    public WorldSize() {
         setUndecorated(true);
         setSize(254, 175);
         setResizable(false);
@@ -104,7 +104,7 @@ public class Login extends JDialog {
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
-                    Login frame = new Login();
+                    WorldSize frame = new WorldSize();
                     frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
