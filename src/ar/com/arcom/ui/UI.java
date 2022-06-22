@@ -1,5 +1,8 @@
 package ar.com.arcom.ui;
 
+import ar.com.arcom.Application;
+import ar.com.arcom.bin.Ciudad;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
@@ -9,20 +12,31 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
-public class GUI extends JFrame {
+public class UI extends JFrame {
+    private Application application;
+    // Atributos principales
+    private GraficoCiudad graficoCiudad;
+    /*
+    private List<GraficoPersona> listaGraficoPersonas;
+    private List<GraficoAuto> listaGraficoAutos;
+    */
 
-    private JPanel contentPane;
-    private LaminaCiudad laminaCiudad;
+    // Atributos extra
     private boolean refresh;
+    private JPanel contentPane;
+    private JTextField jtf_barraEstado;
 
     // Atributos para MenuBar
     private final String[] ETIQUETAS_MENU_BAR = {"Archivo","Ver","Herramientas","Ayuda"};
-    private final String[] ETIQUETAS_MENU_ITEMS = {"0_Nueva laminaCiudad","0*","0_Salir","1_Informacion general",
+    private final String[] ETIQUETAS_MENU_ITEMS = {"0_Nueva Ciudad","0*","0_Salir","1_Informacion general",
             "1_Panel de personas","1_Panel de autos","1*","1_Tablas de datos","2_Controles","3_Acerca de..."};
     private ArrayList<JMenu> componentArrayList;
     private ArrayList<JMenuItem> menuItemArrayList;
-    public GUI() throws HeadlessException {
+    // Fin atributos para MenuBar
+
+    public UI(Application application) throws HeadlessException {
         super();
+        this.application = application;
         initialize();
     }
 
@@ -42,6 +56,15 @@ public class GUI extends JFrame {
         getContentPane().setLayout(new BorderLayout(0, 0));
         contentPane.setLayout(new BorderLayout(0, 0));
 
+        // Inicio de la barra de estado
+        jtf_barraEstado = new JTextField();
+        jtf_barraEstado.setHorizontalAlignment(SwingConstants.RIGHT);
+        jtf_barraEstado.setEditable(false);
+        jtf_barraEstado.setBounds(503, 414, 104, 20);
+        contentPane.add(jtf_barraEstado,BorderLayout.SOUTH);
+        jtf_barraEstado.setColumns(20);
+        // Fin barra de estado
+
         JScrollPane scrollPane = new JScrollPane();
         scrollPane.setMaximumSize(new Dimension(100*25,100*25));
         scrollPane.setBounds(12, 12, getWidth()-36, getHeight()-60);
@@ -52,37 +75,12 @@ public class GUI extends JFrame {
         initializeMenuBar();
 
         setVisible(true);
+
         createCity(0,0);
-        scrollPane.setViewportView(laminaCiudad);
+        scrollPane.setViewportView(graficoCiudad);
 
-        DialogCreaCiudad dialog = new DialogCreaCiudad(this);
-        dialog.setModal(true);
-        dialog.setVisible(true);
-
-        if (refresh) {
-            setVisible(false);
-            setVisible(true);
-            refresh = false;
-        }
+        createPanel();
     }
-
-    public void createCity(int width, int height){
-        if(laminaCiudad !=null){
-            laminaCiudad.setWidthBox(width);
-            laminaCiudad.setHeightBox(height);
-            laminaCiudad.setPreferredSize(new Dimension(width*26,height*26));
-            refresh = true;
-            if(width > 0 && height > 0) laminaCiudad.setVisibleInternalFrame(true);
-        } else {
-            laminaCiudad = new LaminaCiudad(width,height);
-            laminaCiudad.setOpaque(false);
-            laminaCiudad.addMouseListener(new EventoRaton(this.getLocationOnScreen()));
-            laminaCiudad.setBackground(Color.WHITE);
-            laminaCiudad.setPreferredSize(new Dimension(width*26,height*26));
-            if(width > 0 && height > 0) laminaCiudad.setVisibleInternalFrame(true);
-        }
-    }
-
     private void initializeMenuBar(){
         componentArrayList = new ArrayList<>() ;
         JMenuBar menuBar = new JMenuBar();
@@ -107,6 +105,55 @@ public class GUI extends JFrame {
         }
     }
 
+    public void setTextBarraEstado(String texto) {
+        jtf_barraEstado.setText(texto);
+    }
+
+    public void createPanel() {
+        JDialog dialog = new DialogCreaCiudad(this);
+        dialog.setModal(true);
+        dialog.setVisible(true);
+
+        dialog = new DialogCreaPersonas(this);
+        dialog.setModal(true);
+        dialog.setVisible(true);
+
+        if (refresh) {
+            setVisible(false);
+            setVisible(true);
+            refresh = false;
+        }
+
+        if(application.getCiudad().getAncho() > 0 && application.getCiudad().getAlto() > 0) graficoCiudad.setVisibleInternalFrame(true);
+    }
+
+    public void createPeople(int i) {
+        application.inicializarListaPersonasAleatorio(i);
+        application.inicializarListaAutos(i);
+    }
+
+    public void createCity(long width, long height){
+        if(graficoCiudad !=null){
+            graficoCiudad.setWidthBox(width);
+            graficoCiudad.setHeightBox(height);
+            graficoCiudad.setPreferredSize(new Dimension((int)width*26,(int)height*26));
+            refresh = true;
+            application.getCiudad().setAncho(width);
+            application.getCiudad().setAlto(height);
+        } else {
+            graficoCiudad = new GraficoCiudad(width,height);
+            graficoCiudad.setOpaque(false);
+            graficoCiudad.addMouseListener(new EventoRaton(this.getLocationOnScreen()));
+            graficoCiudad.setBackground(Color.WHITE);
+            graficoCiudad.setPreferredSize(new Dimension((int)width*26,(int)height*26));
+            application.setCiudad(width,height);
+        }
+    }
+
+    public void salir(){
+
+    }
+
     private class EventoBoton implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             String ac = e.getActionCommand();
@@ -114,11 +161,19 @@ public class GUI extends JFrame {
             if(ac.equals("cmd_invert")) {
 
             } else if(ac.equals("cmd_salir")) {
-
+                System.exit(0);
             } else if(ac.equals("cmd_informacion general")) {
-                laminaCiudad.displayInternalFrame(new InternalFrameVistaGeneral("Vista General"));
+                graficoCiudad.displayInternalFrame(new InternalFrameVistaGeneral("Vista General"));
             } else if(ac.equals("cmd_panel de personas")) {
-                laminaCiudad.displayInternalFrame(new InternalFramePersonas("Panel de Personas"));
+                graficoCiudad.displayInternalFrame(new InternalFramePersonas("Panel de Personas"));
+            } else if(ac.equals("cmd_panel de autos")) {
+                graficoCiudad.displayInternalFrame(new InternalFramePersonas("Panel de Autos"));
+            } else if(ac.equals("cmd_controles")) {
+                graficoCiudad.displayInternalFrame(new InternalFramePersonas("Controles"));
+            } else if(ac.equals("cmd_acerca de...")) {
+                graficoCiudad.displayInternalFrame(new InternalFramePersonas("Acerca de..."));
+            } else if(ac.equals("cmd_nueva ciudad")) {
+                createPanel();
             }
 
         }
@@ -156,18 +211,18 @@ public class GUI extends JFrame {
 
             int[] aux = verifica((int)(aux_posX*25)-5, (int) (aux_posY*25)-5);
 
-            if(aux[0] >= 25 && aux[1] >= 25 && aux[0] <= laminaCiudad.getWidthBox()*25 && aux[1] <= laminaCiudad.getHeightBox()*25){
-                if(laminaCiudad.ftf_desde.isFocusOwner()) {
-                    laminaCiudad.setXY(aux[0], aux[1]);
-                    laminaCiudad.drawPointA = true;
-                } else if(laminaCiudad.ftf_desde.getText().equals("")) laminaCiudad.drawPointA = false;
+            if(aux[0] >= 25 && aux[1] >= 25 && aux[0] <= graficoCiudad.getWidthBox()*25 && aux[1] <= graficoCiudad.getHeightBox()*25){
+                if(graficoCiudad.ftf_desde.isFocusOwner()) {
+                    graficoCiudad.setXY(aux[0], aux[1]);
+                    graficoCiudad.drawPointA = true;
+                } else if(graficoCiudad.ftf_desde.getText().equals("")) graficoCiudad.drawPointA = false;
 
-                if(laminaCiudad.ftf_hasta.isFocusOwner()) {
-                    laminaCiudad.setAB(aux[0],aux[1]);
-                    laminaCiudad.drawPointB = true;
-                } else if(laminaCiudad.ftf_hasta.getText().equals("")) laminaCiudad.drawPointB = false;
+                if(graficoCiudad.ftf_hasta.isFocusOwner()) {
+                    graficoCiudad.setAB(aux[0],aux[1]);
+                    graficoCiudad.drawPointB = true;
+                } else if(graficoCiudad.ftf_hasta.getText().equals("")) graficoCiudad.drawPointB = false;
             }
-            laminaCiudad.repaint();
+            graficoCiudad.repaint();
         }
 
         private int[] verifica(int x, int y){

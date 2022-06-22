@@ -1,5 +1,7 @@
 package ar.com.arcom.ui;
 
+import ar.com.arcom.bin.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -7,19 +9,19 @@ import java.awt.event.ActionListener;
 
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
-public class LaminaCiudad extends JComponent {
+public class GraficoCiudad extends JComponent {
     private final int ANCHO_CUADRO=25;
     private final int ALTO_CUADRO=25;
 
     public boolean drawPointA, drawPointB;
     public int x,y,a,b;
 
-    private int widthBox, heightBox;
+    private long widthBox, heightBox;
     private JInternalFrame internalFrame;
     public JFormattedTextField ftf_desde, ftf_hasta;
     private String desde, hasta;
 
-    public LaminaCiudad(int widthBox, int heightBox) {
+    public GraficoCiudad(long widthBox, long heightBox) {
         super();
         this.setLayout(null);
 
@@ -32,10 +34,15 @@ public class LaminaCiudad extends JComponent {
 
         setLayout(null);
 
+        creaInternalFrameDefault();
+    }
+
+    public void creaInternalFrameDefault(){
         internalFrame = new JInternalFrame("Como llegar");
         internalFrame.setBounds(48, 12, 240, 241);
         internalFrame.setContentPane(new JPanel());
         internalFrame.getContentPane().setLayout(null);
+        internalFrame.setClosable(true);
         add(internalFrame);
 
         JPanel panel_1_1 = new JPanel();
@@ -44,7 +51,7 @@ public class LaminaCiudad extends JComponent {
         internalFrame.setContentPane(panel_1_1);
 
         JButton jbn_calcularRuta = new JButton("Calcular ruta");
-        jbn_calcularRuta.addActionListener(new LaminaCiudad.EventoBoton());
+        jbn_calcularRuta.addActionListener(new GraficoCiudad.EventoBoton());
         jbn_calcularRuta.setActionCommand("cmd_calcular");
         jbn_calcularRuta.setBounds(12, 171, 209, 21);
         panel_1_1.add(jbn_calcularRuta);
@@ -80,7 +87,7 @@ public class LaminaCiudad extends JComponent {
         panel_1_1.add(txtpnIngreseElTamao_1);
 
         JButton btnNewButton_1_1 = new JButton("Invertir");
-        //btnNewButton_1_1.addActionListener(new LaminaCiudad.EventoBoton());
+        btnNewButton_1_1.addActionListener(new GraficoCiudad.EventoBoton());
         btnNewButton_1_1.setActionCommand("cmd_invert");
         btnNewButton_1_1.setBounds(118, 138, 100, 21);
         panel_1_1.add(btnNewButton_1_1);
@@ -95,16 +102,16 @@ public class LaminaCiudad extends JComponent {
             graphics2D.setColor(Color.GRAY);
             graphics2D.drawLine(i,0,i,25);
             graphics2D.setColor(Color.DARK_GRAY);
-            graphics2D.drawLine(i, 25, i, heightBox *25);
+            graphics2D.drawLine(i, 25, i,  (int)heightBox *25);
             if(i%2 == 0) graphics2D.fillPolygon(new int[]{i,i+3,i-3},new int[]{0,8,8},3);
-            else graphics2D.fillPolygon(new int[]{i,i+3,i-3},new int[]{heightBox *25,(heightBox *25)-8,(heightBox *25)-8},3);
+            else graphics2D.fillPolygon(new int[]{i,i+3,i-3},new int[]{(int) heightBox *25,((int) heightBox *25)-8,((int) heightBox *25)-8},3);
         }
         for(int i = ANCHO_CUADRO; i < heightBox *25; i+=ALTO_CUADRO) {
             graphics2D.setColor(Color.GRAY);
-            graphics2D.drawLine(0,i, widthBox *25,i);
+            graphics2D.drawLine(0,i, (int) widthBox *25,i);
             graphics2D.setColor(Color.DARK_GRAY);
-            graphics2D.drawLine(25, i, widthBox *25, i);
-            if(i%2 == 0) graphics2D.fillPolygon(new int[]{widthBox *25,(widthBox *25)-8,(widthBox *25)-8},new int[]{i,i-3,i+3},3);
+            graphics2D.drawLine(25, i, (int) widthBox *25, i);
+            if(i%2 == 0) graphics2D.fillPolygon(new int[]{(int) widthBox *25,((int) widthBox *25)-8,((int) widthBox *25)-8},new int[]{i,i-3,i+3},3);
             else graphics2D.fillPolygon(new int[]{0,8,8},new int[]{i,i-3,i+3},3);
         }
     }
@@ -115,7 +122,7 @@ public class LaminaCiudad extends JComponent {
         Graphics2D graphics2D = (Graphics2D)g;
         if(drawPointA){
             graphics2D.setColor(Color.DARK_GRAY);
-            graphics2D.drawString("ORIGEN",x-24,y-20);
+            graphics2D.drawString("ORIGEN", x-24,y-20);
             graphics2D.setColor(Color.GREEN);
             graphics2D.fillPolygon(new int[]{x,x+6,x-6},new int[]{y,y-16,y-16},3);
         }
@@ -131,11 +138,11 @@ public class LaminaCiudad extends JComponent {
         internalFrame.setVisible(valor);
     }
 
-    public void setWidthBox(int widthBox) {
+    public void setWidthBox(long widthBox) {
         this.widthBox = widthBox +1;
     }
 
-    public void setHeightBox(int heightBox) {
+    public void setHeightBox(long heightBox) {
         this.heightBox = heightBox +1;
     }
 
@@ -151,20 +158,20 @@ public class LaminaCiudad extends JComponent {
     }
 
     private void setDesde() {
-        if(x%25 == 0) desde = "Origen: Calle Vertical al " + (int)(((y-25)/25f)*100f);
-        else if(y%25 == 0) desde = "Origen: Calle Horizontal al " + (int)(((x-25)/25f)*100f);
+        if(x%25 == 0) desde = "Origen: Calle Vertical [" + x/25 + "] al " + (int)(((y-25)/25f)*100f);
+        else if(y%25 == 0) desde = "Origen: Calle Horizontal [" + y/25 + "] al " + (int)(((x-25)/25f)*100f);
     }
 
     private void setHasta() {
-        if(a%25 == 0) hasta = "Destino: Calle Vertical al " + (int)(((b-25)/25f)*100f);
-        else if(b%25 == 0) hasta = "Destino: Calle Horizontal al " + (int)(((a-25)/25f)*100f);
+        if(a%25 == 0) hasta = "Destino: Calle Vertical [" + a/25 + "] al " + (int)(((b-25)/25f)*100f);
+        else if(b%25 == 0) hasta = "Destino: Calle Horizontal [" + b/25 + "] al " + (int)(((a-25)/25f)*100f);
     }
 
-    public int getWidthBox() {
+    public double  getWidthBox() {
         return widthBox-1;
     }
 
-    public int getHeightBox() {
+    public double getHeightBox() {
         return heightBox-1;
     }
 
@@ -172,6 +179,7 @@ public class LaminaCiudad extends JComponent {
         this.internalFrame.dispose();
         this.internalFrame = internalFrame;
         add(internalFrame);
+        internalFrame.setClosable(true);
         internalFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         internalFrame.setVisible(true);
     }
@@ -190,8 +198,14 @@ public class LaminaCiudad extends JComponent {
                     setAB(p, q);
                     repaint();
                 }
-            }
-            else if(ac.equals("cmd_salir")) {
+            } else if(ac.equals("cmd_calcular")) {
+                NodoMaestro nodo;
+
+                if(ftf_desde.getText().contains("Verical")) nodo = new NodoMaestro(new Ubicacion(new Calle(Calle.ORIENTACION_VERTICAL,'N'), (double)y));
+                else nodo = new NodoMaestro(new Ubicacion(new Calle(Calle.ORIENTACION_HORIZONTAL,'O'), (double)x));
+
+                //nodo.work(new Coordenada(a,b));
+
             }
         }
     }

@@ -23,7 +23,7 @@ public class InternalFrameModoViaje extends JInternalFrame{
         internalFrame.setContentPane(panel_1_1);
 
         JButton jbn_calcularRuta = new JButton("Calcular ruta");
-        jbn_calcularRuta.addActionListener(new LaminaCiudad.EventoBoton());
+        jbn_calcularRuta.addActionListener(new GraficoCiudad.EventoBoton());
         jbn_calcularRuta.setActionCommand("cmd_calcular");
         jbn_calcularRuta.setBounds(12, 171, 209, 21);
         panel_1_1.add(jbn_calcularRuta);
@@ -59,7 +59,7 @@ public class InternalFrameModoViaje extends JInternalFrame{
         panel_1_1.add(txtpnIngreseElTamao_1);
 
         JButton btnNewButton_1_1 = new JButton("Invertir");
-        //btnNewButton_1_1.addActionListener(new LaminaCiudad.EventoBoton());
+        //btnNewButton_1_1.addActionListener(new GraficoCiudad.EventoBoton());
         btnNewButton_1_1.setActionCommand("cmd_invert");
         btnNewButton_1_1.setBounds(118, 138, 100, 21);
         panel_1_1.add(btnNewButton_1_1);*/

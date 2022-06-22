@@ -2,7 +2,6 @@ package ar.com.arcom.ui;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import java.awt.*;
@@ -104,11 +103,6 @@ public class DialogCreaCiudad extends JDialog {
         lbl_height.setHorizontalAlignment(SwingConstants.CENTER);
         lbl_height.setBounds(121, 78, 100, 16);
         panel.add(lbl_height);
-
-        Box verticalBox = Box.createVerticalBox();
-        verticalBox.setBorder(new LineBorder(new Color(192, 192, 192), 1, true));
-        verticalBox.setBounds(6, 75, 219, 50);
-        panel.add(verticalBox);
     }
 
     private class EventoBoton implements ActionListener, ChangeListener {
@@ -117,13 +111,12 @@ public class DialogCreaCiudad extends JDialog {
             if(ac.equals("cmd_gen")) {
                 if(jcb_random.isSelected()){
                     Random random = new Random();
-                    ((GUI) getOwner()).createCity((random.nextInt(1000)+1)*2,(random.nextInt(1000)+1)*2);
-
+                    ((UI) getOwner()).createCity((random.nextInt(1000)+1)*2,(random.nextInt(1000)+1)*2);
                     dispose();
                 } else if(!ftf_height.getText().equals("") && !ftf_width.getText().equals("") &&
                         Integer.parseInt(ftf_height.getText())%2 == 0 && Integer.parseInt(ftf_width.getText())%2 == 0 &&
                         Integer.parseInt(ftf_height.getText())>0 && Integer.parseInt(ftf_width.getText())>0){
-                    ((GUI) getOwner()).createCity(Integer.parseInt(ftf_width.getText()),Integer.parseInt(ftf_height.getText()));
+                    ((UI) getOwner()).createCity(Integer.parseInt(ftf_width.getText()),Integer.parseInt(ftf_height.getText()));
                     dispose();
                 } else JOptionPane.showMessageDialog(null,"Ancho y Alto tienen que ser mayor a 0 y multiplo de 2","Error",JOptionPane.ERROR_MESSAGE);
 
