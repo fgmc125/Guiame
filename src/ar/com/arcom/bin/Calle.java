@@ -9,11 +9,10 @@ public class Calle {
     private String nombre;
     private char orientacion, sentido;
 
-    public Calle(char orientacion, char sentido) {
+    public Calle(long id, char orientacion, char sentido) {
         this.orientacion = orientacion;
         this.sentido = sentido;
-        id = idCout;
-        idCout++;
+        this.id = id;
         generarNombre();
     }
 
@@ -50,6 +49,6 @@ public class Calle {
     }
 
     public void generarNombre(){
-        nombre = "Calle " + ((orientacion == 'h') ? "Horizontal" : "Vertical");
+        nombre = "Calle " + ((orientacion == 'H') ? "Horizontal" : "Vertical");
     }
 }

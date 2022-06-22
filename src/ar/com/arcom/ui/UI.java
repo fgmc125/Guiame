@@ -138,16 +138,22 @@ public class UI extends JFrame {
             graficoCiudad.setHeightBox(height);
             graficoCiudad.setPreferredSize(new Dimension((int)width*26,(int)height*26));
             refresh = true;
-            application.getCiudad().setAncho(width);
-            application.getCiudad().setAlto(height);
+            application.setCiudad(new Ciudad(width,height));
         } else {
             graficoCiudad = new GraficoCiudad(width,height);
             graficoCiudad.setOpaque(false);
             graficoCiudad.addMouseListener(new EventoRaton(this.getLocationOnScreen()));
             graficoCiudad.setBackground(Color.WHITE);
             graficoCiudad.setPreferredSize(new Dimension((int)width*26,(int)height*26));
-            application.setCiudad(width,height);
         }
+    }
+
+    public UI getThis(){
+        return this;
+    }
+
+    public Application getApplication() {
+        return application;
     }
 
     public void salir(){
@@ -157,9 +163,7 @@ public class UI extends JFrame {
     private class EventoBoton implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             String ac = e.getActionCommand();
-            System.out.println(ac);
             if(ac.equals("cmd_invert")) {
-
             } else if(ac.equals("cmd_salir")) {
                 System.exit(0);
             } else if(ac.equals("cmd_informacion general")) {
@@ -174,6 +178,10 @@ public class UI extends JFrame {
                 graficoCiudad.displayInternalFrame(new InternalFramePersonas("Acerca de..."));
             } else if(ac.equals("cmd_nueva ciudad")) {
                 createPanel();
+            } else if(ac.equals("cmd_tablas de datos")) {
+                JDialog dialog = new DialogVerPersonas(getThis());
+                dialog.setModal(false);
+                dialog.setVisible(true);
             }
 
         }

@@ -45,8 +45,8 @@ public class Application {
         return ciudad;
     }
 
-    public void setCiudad(long width, long heigth) {
-        ciudad = new Ciudad(width,heigth);
+    public void setCiudad(Ciudad ciudad) {
+        this.ciudad = ciudad;
     }
 
     public ArrayList<Persona> getPersonas() {
@@ -97,13 +97,11 @@ public class Application {
         long aux;
         Calle calle;
         for(int i = 0; i < valor;i++){
-            aux = random.nextLong(ciudad.getAncho() * ciudad.getAlto());
+            aux = random.nextLong(ciudad.getAncho() + ciudad.getAlto());
             calle = ciudad.getCalle((int)aux);
+            Ubicacion ubicacion = new Ubicacion(ciudad.getCalle((int)aux),
+                    (calle.getOrientacion() == 'H') ? random.nextLong(ciudad.getAncho()) : random.nextLong(ciudad.getAlto()));
 
-            if (calle.getOrientacion() == 'H') aux = random.nextLong(ciudad.getAncho());
-            else aux = random.nextLong(ciudad.getAlto());
-
-            Ubicacion ubicacion = new Ubicacion(calle, aux);
             personas.add(new Persona(ubicacion, false));
         }
     }
@@ -114,7 +112,7 @@ public class Application {
         long aux;
         Calle calle;
         for(int i = 0; i < valor;i++){
-            aux = random.nextLong(ciudad.getAncho() * ciudad.getAlto());
+            aux = random.nextLong(ciudad.getAncho() + ciudad.getAlto());
             calle = ciudad.getCalle((int)aux);
 
             if (calle.getOrientacion() == 'H') aux = random.nextLong(ciudad.getAncho());

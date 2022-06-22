@@ -2,9 +2,9 @@ package ar.com.arcom.bin;
 
 public class Ubicacion {
     private Calle calle;
-    private double valor;
+    private long valor;
 
-    public Ubicacion(Calle calle, double valor) {
+    public Ubicacion(Calle calle, long valor) {
         this.calle = calle;
         this.valor = valor;
     }
@@ -17,11 +17,11 @@ public class Ubicacion {
         this.calle = calle;
     }
 
-    public double getValor() {
+    public long getValor() {
         return valor;
     }
 
-    public void setValor(double valor) {
+    public void setValor(long valor) {
         this.valor = valor;
     }
 }

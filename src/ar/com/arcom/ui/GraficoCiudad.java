@@ -201,8 +201,8 @@ public class GraficoCiudad extends JComponent {
             } else if(ac.equals("cmd_calcular")) {
                 NodoMaestro nodo;
 
-                if(ftf_desde.getText().contains("Verical")) nodo = new NodoMaestro(new Ubicacion(new Calle(Calle.ORIENTACION_VERTICAL,'N'), (double)y));
-                else nodo = new NodoMaestro(new Ubicacion(new Calle(Calle.ORIENTACION_HORIZONTAL,'O'), (double)x));
+                if(ftf_desde.getText().contains("Verical")) nodo = new NodoMaestro(new Ubicacion(new Calle(1,Calle.ORIENTACION_VERTICAL,'N'), (long)y));
+                else nodo = new NodoMaestro(new Ubicacion(new Calle(1,Calle.ORIENTACION_HORIZONTAL,'N'), (long)x));
 
                 //nodo.work(new Coordenada(a,b));
 
