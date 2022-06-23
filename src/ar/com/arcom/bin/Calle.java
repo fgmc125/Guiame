@@ -3,7 +3,6 @@ package ar.com.arcom.bin;
 public class Calle {
     public final static char DIR_NORTE = 'N', DIR_SUR = 'S', DIR_ESTE = 'E', DIR_OESTE = 'O';
     public final static char ORIENTACION_VERTICAL = 'V', ORIENTACION_HORIZONTAL = 'H';
-    private static long idCout = 0;
 
     private long id;
     private String nombre;
@@ -49,6 +48,6 @@ public class Calle {
     }
 
     public void generarNombre(){
-        nombre = "Calle " + ((orientacion == 'H') ? "Horizontal" : "Vertical");
+        nombre = "Calle " + ((orientacion == 'H') ? "Horizontal " + id : "Vertical " + id);
     }
 }

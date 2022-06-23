@@ -1,7 +1,10 @@
 package ar.com.arcom.ui;
 
 import ar.com.arcom.Application;
+import ar.com.arcom.bin.Auto;
 import ar.com.arcom.bin.Ciudad;
+import ar.com.arcom.bin.Coordenada;
+import ar.com.arcom.bin.Ubicacion;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -11,11 +14,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.List;
 
 public class UI extends JFrame {
     private Application application;
     // Atributos principales
     private GraficoCiudad graficoCiudad;
+    private List<GraficoAuto> graficoAutoList;
     /*
     private List<GraficoPersona> listaGraficoPersonas;
     private List<GraficoAuto> listaGraficoAutos;
@@ -29,7 +34,7 @@ public class UI extends JFrame {
     // Atributos para MenuBar
     private final String[] ETIQUETAS_MENU_BAR = {"Archivo","Ver","Herramientas","Ayuda"};
     private final String[] ETIQUETAS_MENU_ITEMS = {"0_Nueva Ciudad","0*","0_Salir","1_Informacion general",
-            "1_Panel de personas","1_Panel de autos","1*","1_Tablas de datos","2_Controles","3_Acerca de..."};
+            "1_Panel de personas","1_Panel de autos","1*","1_Tablas de datos","2_Controles","2_Como llegar","3_Acerca de..."};
     private ArrayList<JMenu> componentArrayList;
     private ArrayList<JMenuItem> menuItemArrayList;
     // Fin atributos para MenuBar
@@ -96,7 +101,6 @@ public class UI extends JFrame {
                 menuItemArrayList.add(new JMenuItem(ETIQUETAS_MENU_ITEMS[i].substring(ETIQUETAS_MENU_ITEMS[i].indexOf("_")+1)));
                 menuItemArrayList.get(i).addActionListener(new EventoBoton());
                 menuItemArrayList.get(i).setActionCommand("cmd_"+ ETIQUETAS_MENU_ITEMS[i].substring(ETIQUETAS_MENU_ITEMS[i].indexOf("_")+1).toLowerCase());
-                System.out.println(menuItemArrayList.get(i).getActionCommand());
                 componentArrayList.get(Integer.parseInt(""+ETIQUETAS_MENU_ITEMS[i].charAt(0))).add(menuItemArrayList.get(i));
             } else {
                 menuItemArrayList.add(null);
@@ -104,11 +108,9 @@ public class UI extends JFrame {
             }
         }
     }
-
     public void setTextBarraEstado(String texto) {
         jtf_barraEstado.setText(texto);
     }
-
     public void createPanel() {
         JDialog dialog = new DialogCreaCiudad(this);
         dialog.setModal(true);
@@ -129,7 +131,14 @@ public class UI extends JFrame {
 
     public void createPeople(int i) {
         application.inicializarListaPersonasAleatorio(i);
+        createCars(i);
+    }
+
+    public void createCars(int i) {
+        graficoAutoList = new ArrayList<>();
         application.inicializarListaAutos(i);
+        for(Auto auto: application.getAutos()) graficoAutoList.add(new GraficoAuto(auto));
+        graficoCiudad.setGraficoAutoList(graficoAutoList);
     }
 
     public void createCity(long width, long height){
@@ -140,7 +149,7 @@ public class UI extends JFrame {
             refresh = true;
             application.setCiudad(new Ciudad(width,height));
         } else {
-            graficoCiudad = new GraficoCiudad(width,height);
+            graficoCiudad = new GraficoCiudad(width,height, application);
             graficoCiudad.setOpaque(false);
             graficoCiudad.addMouseListener(new EventoRaton(this.getLocationOnScreen()));
             graficoCiudad.setBackground(Color.WHITE);
@@ -160,7 +169,17 @@ public class UI extends JFrame {
 
     }
 
+    public List<GraficoAuto> getGraficoAutoList() {
+        return graficoAutoList;
+    }
+
     private class EventoBoton implements ActionListener {
+        private JDialog dialog;
+
+        public EventoBoton() {
+            dialog = null;
+        }
+
         public void actionPerformed(ActionEvent e) {
             String ac = e.getActionCommand();
             if(ac.equals("cmd_invert")) {
@@ -179,9 +198,17 @@ public class UI extends JFrame {
             } else if(ac.equals("cmd_nueva ciudad")) {
                 createPanel();
             } else if(ac.equals("cmd_tablas de datos")) {
-                JDialog dialog = new DialogVerPersonas(getThis());
-                dialog.setModal(false);
-                dialog.setVisible(true);
+                if (dialog == null) {
+                    dialog = new DialogTablaDatos(getThis());
+                    dialog.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+                    dialog.setModal(false);
+                    dialog.setVisible(true);
+                } else if(!dialog.isVisible()){
+                    dialog.setVisible(true);
+                }
+            } else if(ac.equals("cmd_como llegar")) {
+                graficoCiudad.creaInternalFrameDefault();
+                graficoCiudad.setVisibleInternalFrame(true);
             }
 
         }
@@ -222,11 +249,20 @@ public class UI extends JFrame {
             if(aux[0] >= 25 && aux[1] >= 25 && aux[0] <= graficoCiudad.getWidthBox()*25 && aux[1] <= graficoCiudad.getHeightBox()*25){
                 if(graficoCiudad.ftf_desde.isFocusOwner()) {
                     graficoCiudad.setXY(aux[0], aux[1]);
-                    graficoCiudad.drawPointA = true;
-                } else if(graficoCiudad.ftf_desde.getText().equals("")) graficoCiudad.drawPointA = false;
 
+                    Ubicacion ubicacion = new Ubicacion(application.getCiudad().indexOf(new Coordenada((long)(((aux[0])/25f)*100),(long)(((aux[1])/25f)*100))),
+                            ((aux[0] % 25 == 0) ? (long)(((aux[1]-25f)/25) * 100L) : (long)(((aux[0]-25f)/25) * 100L)));
+
+                    graficoCiudad.setUbicacionDesde(ubicacion);
+                    graficoCiudad.drawPointA = true;
+                }
                 if(graficoCiudad.ftf_hasta.isFocusOwner()) {
                     graficoCiudad.setAB(aux[0],aux[1]);
+
+                    Ubicacion ubicacion = new Ubicacion(application.getCiudad().indexOf(new Coordenada((long)(((aux[0])/25f)*100),(long)(((aux[1])/25f)*100))),
+                            ((aux[0] % 25 == 0) ? (long)(((aux[1]-25f)/25) * 100L) : (long)(((aux[0]-25f)/25) * 100L)));
+
+                    graficoCiudad.setUbicacionHasta(ubicacion);
                     graficoCiudad.drawPointB = true;
                 } else if(graficoCiudad.ftf_hasta.getText().equals("")) graficoCiudad.drawPointB = false;
             }

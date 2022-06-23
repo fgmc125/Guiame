@@ -24,4 +24,13 @@ public class Ubicacion {
     public void setValor(long valor) {
         this.valor = valor;
     }
+
+    public Coordenada aCoordenadas() {
+        Coordenada coordenada = (calle.getNombre().contains("Calle Horizontal")) ? new Coordenada(valor, (calle.getId()*100L)-100) : new Coordenada((calle.getId()*100L)-100, valor);
+        return coordenada;
+    }
+    public void aumentaValor(long valor){
+        this.valor += valor;
+    }
+
 }

@@ -1,6 +1,7 @@
 package ar.com.arcom.ui;
 
 import ar.com.arcom.bin.Auto;
+import ar.com.arcom.bin.Calle;
 import ar.com.arcom.bin.Persona;
 
 import javax.swing.*;
@@ -10,12 +11,12 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.List;
 
-public class DialogVerPersonas extends JDialog {
+public class DialogTablaDatos extends JDialog {
     private final JPanel contentPane;
-    private JTable tablePersonas, tableAutos;
-    private DefaultTableModel defaultTableModelPersonas, defaultTableModelAutos;
+    private JTable tablePersonas, tableAutos, tableCalles;
+    private DefaultTableModel defaultTableModelPersonas, defaultTableModelAutos, defaultTableModelCalles;
 
-    public DialogVerPersonas(Frame owner) {
+    public DialogTablaDatos(Frame owner) {
         super(owner);
         setSize(255, 210);
         setResizable(false);
@@ -90,6 +91,29 @@ public class DialogVerPersonas extends JDialog {
         tabbedPane.add(scrollPane1,BorderLayout.CENTER);
         tabbedPane.setTitleAt(1, "Lista de Autos");
 
+        // Carga autos
+        tableCalles = new JTable();
+
+        tableCalles.setAutoCreateRowSorter(true);
+
+        defaultTableModelCalles = new DefaultTableModel(
+                createListCalles(),
+                new String[] {
+                        "ID", "ORIENTACION", "SENTIDO"
+                }
+        );
+
+        tableCalles.setModel(defaultTableModelCalles);
+
+        tableCalles.getColumnModel().getColumn(0).setPreferredWidth(25);
+        tableCalles.getColumnModel().getColumn(1).setPreferredWidth(69);
+        tableCalles.getColumnModel().getColumn(2).setPreferredWidth(206);
+
+        JScrollPane scrollPane2 = new JScrollPane(tableCalles);
+        //scrollPane.setPreferredSize(new Dimension(470, 300));
+        scrollPane2.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        tabbedPane.add(scrollPane2,BorderLayout.CENTER);
+        tabbedPane.setTitleAt(2, "Lista de Calles");
     }
 
     public DefaultTableModel getDefaultTableModelPersonas() {
@@ -125,6 +149,21 @@ public class DialogVerPersonas extends JDialog {
                     autoList.get(i).getUbicacion().getCalle().getNombre() + " " + autoList.get(i).getUbicacion().getCalle().getId() + " al " + autoList.get(i).getUbicacion().getValor(),
                     (autoList.get(i).getDestino() != null) ? autoList.get(i).getDestino().getCalle().getNombre() + " " + autoList.get(i).getDestino().getCalle().getId() + " al " + autoList.get(i).getDestino().getValor() : null,
                     (Boolean) autoList.get(i).isEnRuta()
+            };
+        }
+        return objects;
+    }
+
+    private Object[][] createListCalles(){
+        List<Calle> calleList = ((UI) getOwner()).getApplication().getCiudad().getListaDeCalles();
+
+        Object[][] objects = new Object[calleList.size()][3];
+
+        for(int i = 0; i < objects.length; i++){
+            objects[i] = new Object[]{
+                    calleList.get(i).getId(),
+                    calleList.get(i).getOrientacion(),
+                    calleList.get(i).getSentido()
             };
         }
         return objects;

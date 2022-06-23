@@ -1,17 +1,21 @@
 package ar.com.arcom.ui;
 
+import ar.com.arcom.Application;
 import ar.com.arcom.bin.*;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class GraficoCiudad extends JComponent {
     private final int ANCHO_CUADRO=25;
     private final int ALTO_CUADRO=25;
+    private Application application;
 
     public boolean drawPointA, drawPointB;
     public int x,y,a,b;
@@ -21,14 +25,16 @@ public class GraficoCiudad extends JComponent {
     public JFormattedTextField ftf_desde, ftf_hasta;
     private String desde, hasta;
 
-    public GraficoCiudad(long widthBox, long heightBox) {
+    private Ubicacion ubicacionDesde, ubicacionHasta;
+    private List<GraficoAuto> graficoAutoList;
+    public GraficoCiudad(long widthBox, long heightBox, Application application) {
         super();
         this.setLayout(null);
-
+        this.application = application;
         drawPointA = false;
         this.widthBox = widthBox +1;
         this.heightBox = heightBox +1;
-
+        graficoAutoList = new ArrayList<>();
         desde = "";
         hasta = "";
 
@@ -92,7 +98,6 @@ public class GraficoCiudad extends JComponent {
         btnNewButton_1_1.setBounds(118, 138, 100, 21);
         panel_1_1.add(btnNewButton_1_1);
     }
-
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D graphics2D = (Graphics2D)g;
@@ -120,6 +125,7 @@ public class GraficoCiudad extends JComponent {
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D graphics2D = (Graphics2D)g;
+
         if(drawPointA){
             graphics2D.setColor(Color.DARK_GRAY);
             graphics2D.drawString("ORIGEN", x-24,y-20);
@@ -132,20 +138,50 @@ public class GraficoCiudad extends JComponent {
             graphics2D.setColor(Color.RED);
             graphics2D.fillPolygon(new int[]{a,a+6,a-6},new int[]{b,b-16,b-16},3);
         }
+        /*for (GraficoAuto graficoAuto : graficoAutoList) {
+            graficoAuto.draw(g);
+        }*/
+        dibujanodos(g);
+
+    }
+    public void dibujanodos(Graphics g){
+        Graphics2D graphics2D = (Graphics2D)g;
+        int[] au;
+        if(ubicacionDesde != null){
+            au = coordenadaMapaEnGraficas(ubicacionDesde.aCoordenadas());
+            graphics2D.setColor(Color.BLACK);
+            graphics2D.fillOval(au[0]-3,au[1]-3,6,6);
+        }
+        if (ubicacionHasta != null){
+            au = coordenadaMapaEnGraficas(ubicacionHasta.aCoordenadas());
+            graphics2D.setColor(Color.BLUE);
+            graphics2D.fillOval(au[0]-3,au[1]-3,6,6);
+        }
+
+    }
+
+    private void creaObjetos(Graphics g){
+        Graphics2D graphics2D = (Graphics2D)g;
+        graphics2D.setColor(Color.BLACK);
+        graphics2D.fillRect(a-(3),b-(3),6,6);
+        graphics2D.fillPolygon(new int[]{a,a-6,a+6},new int[]{b-9,b,b},3);
+        graphics2D.fillRect(x-(3),y-(9),6,6);
+        graphics2D.fillPolygon(new int[]{x,x-6,x+6},new int[]{y+3,y-4,y-4},3);
+    }
+
+    public void setGraficoAutoList(List<GraficoAuto> graficoAutoList) {
+        this.graficoAutoList = graficoAutoList;
     }
 
     public void setVisibleInternalFrame(boolean valor){
         internalFrame.setVisible(valor);
     }
-
     public void setWidthBox(long widthBox) {
         this.widthBox = widthBox +1;
     }
-
     public void setHeightBox(long heightBox) {
         this.heightBox = heightBox +1;
     }
-
     public void setXY(int x, int y) {
         this.x = x; this.y = y;
         setDesde();
@@ -156,25 +192,26 @@ public class GraficoCiudad extends JComponent {
         setHasta();
         ftf_hasta.setText(hasta);
     }
-
+    public void setUbicacionDesde(Ubicacion ubicacionDesde) {
+        this.ubicacionDesde = ubicacionDesde;
+    }
+    public void setUbicacionHasta(Ubicacion ubicacionHasta) {
+        this.ubicacionHasta = ubicacionHasta;
+    }
     private void setDesde() {
         if(x%25 == 0) desde = "Origen: Calle Vertical [" + x/25 + "] al " + (int)(((y-25)/25f)*100f);
         else if(y%25 == 0) desde = "Origen: Calle Horizontal [" + y/25 + "] al " + (int)(((x-25)/25f)*100f);
     }
-
     private void setHasta() {
         if(a%25 == 0) hasta = "Destino: Calle Vertical [" + a/25 + "] al " + (int)(((b-25)/25f)*100f);
         else if(b%25 == 0) hasta = "Destino: Calle Horizontal [" + b/25 + "] al " + (int)(((a-25)/25f)*100f);
     }
-
     public double  getWidthBox() {
         return widthBox-1;
     }
-
     public double getHeightBox() {
         return heightBox-1;
     }
-
     public void displayInternalFrame(JInternalFrame internalFrame) {
         this.internalFrame.dispose();
         this.internalFrame = internalFrame;
@@ -183,6 +220,13 @@ public class GraficoCiudad extends JComponent {
         internalFrame.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         internalFrame.setVisible(true);
     }
+    public int [] coordenadaMapaEnGraficas(int x,int y){
+        return new int[]{(int)(((x/100f)*25f)+25),(int)(((y/100f)*25f)+25)};
+    }
+    public int [] coordenadaMapaEnGraficas(Coordenada coordenada){
+        return new int[]{(int)(((coordenada.getX()/100f)*25f)+25),(int)(((coordenada.getY()/100f)*25f)+25)};
+    }
+
 
     class EventoBoton implements ActionListener {
         public void actionPerformed(ActionEvent e) {
@@ -193,6 +237,10 @@ public class GraficoCiudad extends JComponent {
                     ftf_desde.setText(ftf_hasta.getText());
                     ftf_hasta.setText(str);;
 
+                    Ubicacion ubicacion = ubicacionDesde;
+                    ubicacionDesde = ubicacionHasta;
+                    ubicacionHasta = ubicacion;
+
                     int p = x, q = y;
                     setXY(a, b);
                     setAB(p, q);
@@ -200,11 +248,8 @@ public class GraficoCiudad extends JComponent {
                 }
             } else if(ac.equals("cmd_calcular")) {
                 NodoMaestro nodo;
-
-                if(ftf_desde.getText().contains("Verical")) nodo = new NodoMaestro(new Ubicacion(new Calle(1,Calle.ORIENTACION_VERTICAL,'N'), (long)y));
-                else nodo = new NodoMaestro(new Ubicacion(new Calle(1,Calle.ORIENTACION_HORIZONTAL,'N'), (long)x));
-
-                //nodo.work(new Coordenada(a,b));
+                nodo = new NodoMaestro(ubicacionDesde, application);
+                nodo.work(ubicacionHasta);
 
             }
         }

@@ -1,31 +1,31 @@
 package ar.com.arcom.bin;
 
 public class Coordenada {
-    private double x;
-    private double y;
+    private long x;
+    private long y;
 
-    public Coordenada(double x, double y) {
+    public Coordenada(long x, long y) {
         this.x = x;
         this.y = y;
     }
 
-    public double getX() {
+    public long getX() {
         return x;
     }
 
-    public void setX(double x) {
+    public void setX(long x) {
         this.x = x;
     }
 
-    public double getY() {
+    public long getY() {
         return y;
     }
 
-    public void setY(double y) {
+    public void setY(long y) {
         this.y = y;
     }
 
-    public void setCoordenadas(double x, double y) {
+    public void setCoordenadas(long x, long y) {
         this.x = x;
         this.y = y;
     }

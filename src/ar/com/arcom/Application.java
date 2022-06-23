@@ -73,6 +73,10 @@ public class Application {
         this.segundos = segundos;
     }
 
+    public ar.com.arcom.ui.UI getUI() {
+        return UI;
+    }
+
     public void play(){
         timer.schedule(timerTask,0, 1000);
         UI.setVisible(true);
