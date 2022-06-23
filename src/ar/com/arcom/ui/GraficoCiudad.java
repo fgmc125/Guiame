@@ -13,8 +13,6 @@ import java.util.List;
 import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class GraficoCiudad extends JComponent {
-    private final int ANCHO_CUADRO=25;
-    private final int ALTO_CUADRO=25;
     private Application application;
 
     public boolean drawPointA, drawPointB;
@@ -26,7 +24,11 @@ public class GraficoCiudad extends JComponent {
     private String desde, hasta;
 
     private Ubicacion ubicacionDesde, ubicacionHasta;
+
+
     private List<GraficoAuto> graficoAutoList;
+
+
     public GraficoCiudad(long widthBox, long heightBox, Application application) {
         super();
         this.setLayout(null);
@@ -103,7 +105,8 @@ public class GraficoCiudad extends JComponent {
         Graphics2D graphics2D = (Graphics2D)g;
         //graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         //graphics2D.setColor(new Color(221,221,221,100));
-        for(int i = ANCHO_CUADRO; i < widthBox *25; i+=ANCHO_CUADRO) {
+        int ANCHO_CUADRO = 25;
+        for(int i = ANCHO_CUADRO; i < widthBox *25; i+= ANCHO_CUADRO) {
             graphics2D.setColor(Color.GRAY);
             graphics2D.drawLine(i,0,i,25);
             graphics2D.setColor(Color.DARK_GRAY);
@@ -111,7 +114,8 @@ public class GraficoCiudad extends JComponent {
             if(i%2 == 0) graphics2D.fillPolygon(new int[]{i,i+3,i-3},new int[]{0,8,8},3);
             else graphics2D.fillPolygon(new int[]{i,i+3,i-3},new int[]{(int) heightBox *25,((int) heightBox *25)-8,((int) heightBox *25)-8},3);
         }
-        for(int i = ANCHO_CUADRO; i < heightBox *25; i+=ALTO_CUADRO) {
+        int ALTO_CUADRO = 25;
+        for(int i = ANCHO_CUADRO; i < heightBox *25; i+= ALTO_CUADRO) {
             graphics2D.setColor(Color.GRAY);
             graphics2D.drawLine(0,i, (int) widthBox *25,i);
             graphics2D.setColor(Color.DARK_GRAY);

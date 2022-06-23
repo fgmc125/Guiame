@@ -15,6 +15,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.TimerTask;
 
 public class UI extends JFrame {
     private Application application;
@@ -33,7 +34,7 @@ public class UI extends JFrame {
 
     // Atributos para MenuBar
     private final String[] ETIQUETAS_MENU_BAR = {"Archivo","Ver","Herramientas","Ayuda"};
-    private final String[] ETIQUETAS_MENU_ITEMS = {"0_Nueva Ciudad","0*","0_Salir","1_Informacion general",
+    private final String[] ETIQUETAS_MENU_ITEMS = {"0_Nueva Ciudad","0_Simular","0*","0_Salir","1_Informacion general",
             "1_Panel de personas","1_Panel de autos","1*","1_Tablas de datos","2_Controles","2_Como llegar","3_Acerca de..."};
     private ArrayList<JMenu> componentArrayList;
     private ArrayList<JMenuItem> menuItemArrayList;
@@ -209,6 +210,13 @@ public class UI extends JFrame {
             } else if(ac.equals("cmd_como llegar")) {
                 graficoCiudad.creaInternalFrameDefault();
                 graficoCiudad.setVisibleInternalFrame(true);
+            } else if(ac.equals("cmd_simular")) {
+                application.simular(new TimerTask() {
+                    @Override
+                    public void run() {
+
+                    }
+                });
             }
 
         }

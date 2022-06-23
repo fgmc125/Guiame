@@ -126,4 +126,10 @@ public class Application {
             autos.add(new Auto(ubicacion));
         }
     }
+
+    public void simular(TimerTask timerTask) {
+        timer.cancel();
+        this.timerTask = timerTask;
+        timer.schedule(this.timerTask,0, 1000);
+    }
 }
