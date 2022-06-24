@@ -252,7 +252,7 @@ public class GraficoCiudad extends JComponent {
                 }
             } else if(ac.equals("cmd_calcular")) {
                 NodoMaestro nodo;
-                nodo = new NodoMaestro(ubicacionDesde, application);
+                nodo = new NodoMaestro(application.getCiudad(), ubicacionDesde);
                 nodo.work(ubicacionHasta);
 
             }

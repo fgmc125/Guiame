@@ -26,32 +26,28 @@ public class Persona {
     public long getId() {
         return id;
     }
-
     public void setId(long id) {
         this.id = id;
     }
-
     public Ubicacion getUbicacion() {
         return ubicacion;
     }
-
     public void setUbicacion(Ubicacion ubicacion) {
         this.ubicacion = ubicacion;
     }
-
     public Ubicacion getDestino() {
         return destino;
     }
-
     public void setDestino(Ubicacion destino) {
         this.destino = destino;
     }
-
     public boolean isEnAuto() {
         return enAuto;
     }
-
     public void setEnAuto(boolean enAuto) {
         this.enAuto = enAuto;
+    }
+    public static void setCnt(long cnt) {
+        Persona.cnt = cnt;
     }
 }
