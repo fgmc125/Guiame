@@ -33,4 +33,32 @@ public class Ubicacion {
         this.valor += valor;
     }
 
+    public boolean esIgual(Ubicacion ubicacion) {
+        if(getCalle().getNombre().contains("Horizontal") && ubicacion.getCalle().getNombre().contains("Horizontal")){
+            if (getCalle().getId() == ubicacion.getCalle().getId() && valor == ubicacion.getValor()) {
+                return true;
+            }else return false;
+        } else if(getCalle().getNombre().contains("Vertical") && ubicacion.getCalle().getNombre().contains("Vertical")){
+            if (getCalle().getId() == ubicacion.getCalle().getId() && valor == ubicacion.getValor()) {
+                return true;
+            }else return false;
+        } else if (esIgualAsuCortante(ubicacion)) return true; else return false;
+    }
+
+    private boolean esIgualAsuCortante(Ubicacion ubicacion){
+        long x,y,a,b;
+        if(getCalle().getNombre().contains("Horizontal")){
+            x = getValor();
+            y = (getCalle().getId()-1)*100;
+            a = (ubicacion.getCalle().getId()-1)*100;
+            b = ubicacion.getValor();
+            if(x == a && y == b) return true; else return false;
+        } else {
+            x = (getCalle().getId()-1)*100;
+            y = getValor();
+            a = ubicacion.getValor();
+            b = (ubicacion.getCalle().getId()-1)*100;
+            if(x == a && y == b) return true; else return false;
+        }
+    }
 }

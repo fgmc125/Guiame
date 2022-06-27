@@ -1,47 +1,352 @@
 package ar.com.arcom.ui;
 
-import ar.com.arcom.bin.Auto;
-import ar.com.arcom.bin.Calle;
-import ar.com.arcom.bin.Coordenada;
+import ar.com.arcom.Application;
+import ar.com.arcom.bin.*;
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
-public class GraficoAuto {
-    // rotar e invertir no implementado todavia
-    private int[] listaFiguras;
-    private List<int[]> formaN;
-    private List<int[]> formaS;
-    private List<int[]> formaE;
-    private List<int[]> formaO;
+public class GraficoAuto implements Dibujable, Movedizo {
+    private Application application;
+    private long prioridad;
     private Auto auto;
+    private Persona persona;
 
-    public final int RECTANGULO = 0, TRIANGULO = 1, CIRCULO = 2;
+    private NodoMaestro nodoMaestro;
+    public List<Character> caminos;
+    List<Ubicacion> ubicaciones;
 
-    public GraficoAuto(Auto auto) {
+    // Atriutos para el reloj
+    private Timer timer;
+    private TimerTask timerTask;
+    private boolean simular;
+
+    public GraficoAuto(Auto auto, Application application) {
+        this.application = application;
         this.auto = auto;
-        formaN = new ArrayList<>();
-        int[] f = coordenadaMapaEnGraficas(auto.getUbicacion().aCoordenadas());
-        listaFiguras = new int[]{0,1};
-        formaN.add(new int[]{f[0]-3,f[1],6,6});
-        formaN.add(new int[]{f[0],f[0]-3,f[0]+3});
-        formaN.add(new int[]{f[1]-9,f[1],f[1]});
-    }
+        nodoMaestro = new NodoMaestro(this.application.getCiudad(), this.auto.getUbicacion());
 
-    public void draw(Graphics g){
-        Graphics2D graphics2D = (Graphics2D)g;
-        graphics2D.setColor(Color.BLUE);
-        for(int i= 0; i < listaFiguras.length; i++){
-            switch (listaFiguras[i]){
-                case 0: graphics2D.fillRect(formaN.get(i)[0],formaN.get(i)[1],formaN.get(i)[2],formaN.get(i)[3]); break;
-                case 1: graphics2D.fillPolygon(formaN.get(i),formaN.get(i+1),3); break;
+        // Crea el reloj
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (simular) moverse(this);
+                else timerTask.cancel();
             }
-
-        }
+        };
     }
 
     public int [] coordenadaMapaEnGraficas(Coordenada coordenada){
-        return new int[]{(int)(((coordenada.getX()/100f)*25f)+25),(int)(((coordenada.getY()/100f)*25f)+25)};
+    return new int[]{(int)(((coordenada.getX()/100f)*25f)+25),(int)(((coordenada.getY()/100f)*25f)+25)};
+    }
+
+    private void encontrarCaminoSentidos(){
+        nodoMaestro.work(auto.getDestino());
+        this.caminos = nodoMaestro.getCaminos();
+    }
+    public List<Ubicacion> encontrarCaminoUbicaciones(){
+        nodoMaestro.work(auto.getDestino());
+        return nodoMaestro.getCaminosConUbicaciones();
+    }
+
+    public Auto getAuto() {
+        return auto;
+    }
+    public void setAuto(Auto auto) {
+        this.auto = auto;
+    }
+
+    @Override
+    public void dibujar(Graphics graphics) {
+        Graphics2D graphics2D = (Graphics2D) graphics;
+        graphics2D.setColor(Color.BLACK);
+        int[] xy = GraficoCiudad.coordenadaMapaEnGraficas(auto.getUbicacion().aCoordenadas());
+        graphics2D.drawString("Auto " + auto.getId(), xy[0]-17, xy[1]-20);
+        graphics2D.setColor(Color.BLUE);
+        graphics2D.fillPolygon(new int[]{xy[0],xy[0]+6,xy[0]-6},
+                new int[]{xy[1],xy[1]-16,xy[1]-16},3);
+    }
+    @Override
+    public void setPrioridad(long prioridad) {
+        this.prioridad = prioridad;
+    }
+    @Override
+    public void setWidthBox(long widthBox) {
+
+    }
+    @Override
+    public void setHeightBox(long heightBox) {
+
+    }
+
+    @Override
+    public void trasladar(Coordenada coordenada) {
+    }
+    @Override
+    public void trasladarX(long x) {
+        auto.getUbicacion().setValor(auto.getUbicacion().getValor() + x);
+    }
+    @Override
+    public void trasladarY(long y) {
+        auto.getUbicacion().setValor(auto.getUbicacion().getValor() + y);
+    }
+    @Override
+    public void setCamino(List<Character> caminos) {
+        this.caminos = caminos;
+    }
+    @Override
+    public List<Character> getCamino() {
+        return caminos;
+    }
+
+    @Override
+    public void moverse(TimerTask timerTask) {
+        if (ubicaciones.size() > 0) {
+            auto.setEnRuta(true);
+            ir();
+        } else {
+            auto.setEnRuta(false);
+            simular = false;
+            timerTask.cancel();
+            timer.cancel();
+            timer.purge();
+        }
+        if(application.getUI().getGraficoCiudad().getInternalFrame().isVisible() &&
+                application.getUI().getGraficoCiudad().getInternalFrame().getTitle().equals("Panel de Autos"))
+            ((InternalFrameAutos)(application.getUI().getGraficoCiudad().getInternalFrame())).recargar();
+
+        application.getUI().getGraficoCiudad().repaint();
+    }
+
+    private void go() {
+        long value = (long) Math.abs(auto.getVelocidadDeMovimiento()*(25f/100f));
+
+        if((auto.getUbicacion().getCalle().getNombre().contains("Horizontal") && ubicaciones.get(0).getCalle().getNombre().contains("Horizontal")) ||
+                (auto.getUbicacion().getCalle().getNombre().contains("Vertical") && ubicaciones.get(0).getCalle().getNombre().contains("Vertical"))){
+            if(auto.getUbicacion().getCalle().getNombre().contains("Horizontal") && ubicaciones.get(0).getCalle().getNombre().contains("Horizontal")){
+                if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_OESTE){
+                    if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
+                        trasladarX(-value);
+                    } else {
+
+                        getAuto().setUbicacion(ubicaciones.get(0));
+                        ubicaciones.remove(0);
+                    }
+                } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
+                    trasladarX(value);
+                }  else {
+                    getAuto().setUbicacion(ubicaciones.get(0));
+                    ubicaciones.remove(0);
+                }
+            } else if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_NORTE){
+                if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
+                    trasladarX(-value);
+                } else {
+                    getAuto().setUbicacion(ubicaciones.get(0));
+                    ubicaciones.remove(0);
+                }
+            } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
+                trasladarX(value);
+            } else {
+                getAuto().setUbicacion(ubicaciones.get(0));
+                ubicaciones.remove(0);
+            }
+        } if(auto.getUbicacion().getCalle().getNombre().contains("Horizontal")){// Caso que la ubicacion actual sea horizontal y necesite transformarse a una vertical
+            long valor = (auto.getUbicacion().getCalle().getId()-1)*100;
+            auto.setUbicacion(new Ubicacion(application.getCiudad().indexOf(auto.getUbicacion().aCoordenadas(),Calle.ORIENTACION_VERTICAL), valor));
+
+            if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_NORTE){
+                if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
+                    trasladarX(-value);
+                } else {
+                    getAuto().setUbicacion(ubicaciones.get(0));
+                    ubicaciones.remove(0);
+                }
+            } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
+                trasladarX(value);
+            } else {
+                getAuto().setUbicacion(ubicaciones.get(0));
+                ubicaciones.remove(0);
+            }
+        } else { // Caso que la ubicacion actual sea vertical y necesite transformarse a una horizontal
+            long valor = (auto.getUbicacion().getCalle().getId()-1)*100;
+            auto.setUbicacion(new Ubicacion(application.getCiudad().indexOf(auto.getUbicacion().aCoordenadas(),Calle.ORIENTACION_HORIZONTAL), valor));
+
+            if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_OESTE){
+                if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
+                    trasladarX(-value);
+                } else {
+                    getAuto().setUbicacion(ubicaciones.get(0));
+                    ubicaciones.remove(0);
+                }
+            } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
+                trasladarX(value);
+            }  else {
+                getAuto().setUbicacion(ubicaciones.get(0));
+                ubicaciones.remove(0);
+            }
+        }
+    }
+    private void ir() {
+        long value = (long) Math.abs(auto.getVelocidadDeMovimiento()*(25f/100f));
+
+        if((auto.getUbicacion().getCalle().getNombre().contains("Horizontal") && ubicaciones.get(0).getCalle().getNombre().contains("Horizontal")) ||
+                (auto.getUbicacion().getCalle().getNombre().contains("Vertical") && ubicaciones.get(0).getCalle().getNombre().contains("Vertical"))){
+            // Caso 1a que ambas sean Horizontales
+            if(auto.getUbicacion().getCalle().getNombre().contains("Horizontal") && ubicaciones.get(0).getCalle().getNombre().contains("Horizontal")){
+                // Caso 1aa que tengan sentido Oeste
+                if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_OESTE){
+                    // Caso 1aaa que [(A.valor - K) > (B.valor)]
+                    if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
+                        trasladarX(-value);
+                    } else {
+                        long l = value - Math.abs(auto.getUbicacion().getValor()-ubicaciones.get(0).getValor());
+                        getAuto().setUbicacion(ubicaciones.get(0));
+                        ubicaciones.remove(0);
+                        if(ubicaciones.size() == 0) return;
+                        // Se debe sumar restar el restante valor "l"
+                        if(ubicaciones.get(0).getCalle().getNombre().contains("Vertical")){
+                            long k = (auto.getUbicacion().getCalle().getId() - 1) * 100;
+                            auto.setUbicacion(new Ubicacion(application.getCiudad().indexOf(auto.getUbicacion().aCoordenadas(),
+                                    Calle.ORIENTACION_VERTICAL),k));
+                            if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_NORTE){
+                                trasladarY(-l);
+                            } else {
+                                trasladarY(l);
+                            }
+                        } else {
+                            trasladarX(-l);
+                        }
+                    } // Caso 1aab que [(A.valor + K) < (B.valor)]
+                } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
+                        trasladarX(value);
+                } else {
+                    long l = value - Math.abs(auto.getUbicacion().getValor()-ubicaciones.get(0).getValor());
+                    getAuto().setUbicacion(ubicaciones.get(0));
+                    ubicaciones.remove(0);
+                    if(ubicaciones.size() == 0) return;
+                    // Se debe sumar restar el restante valor "l"
+                    if(ubicaciones.get(0).getCalle().getNombre().contains("Vertical")){
+                        long k = (auto.getUbicacion().getCalle().getId() - 1) * 100;
+                        auto.setUbicacion(new Ubicacion(application.getCiudad().indexOf(auto.getUbicacion().aCoordenadas(),
+                                Calle.ORIENTACION_VERTICAL),k));
+                        if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_NORTE){
+                            trasladarX(-l);
+                        } else {
+                            trasladarX(l);
+                        }
+                    } else {
+                        trasladarX(l);
+                    }
+                }
+            }
+            else if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_NORTE){
+                // Caso 1aaa que [(A.valor - K) > (B.valor)]
+                if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
+                    trasladarY(-value);
+                } else {
+                    long l = value - Math.abs(auto.getUbicacion().getValor()-ubicaciones.get(0).getValor());
+                    getAuto().setUbicacion(ubicaciones.get(0));
+                    ubicaciones.remove(0);
+                    if(ubicaciones.size() == 0) return;
+                    // Se debe sumar restar el restante valor "l"
+                    if(ubicaciones.get(0).getCalle().getNombre().contains("Horizontal")){
+                        long k = (auto.getUbicacion().getCalle().getId() - 1) * 100;
+                        auto.setUbicacion(new Ubicacion(application.getCiudad().indexOf(auto.getUbicacion().aCoordenadas(),
+                                Calle.ORIENTACION_HORIZONTAL),k));
+                        if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_OESTE){
+                            if((auto.getUbicacion().getValor() - value) <= ubicaciones.get(0).getValor()){
+                                auto.setUbicacion(ubicaciones.get(0));
+                                ubicaciones.remove(0);
+                                if(ubicaciones.size() == 0) return;
+                            } else trasladarX(-l);
+                        } else {
+                            if((auto.getUbicacion().getValor() + value) >= ubicaciones.get(0).getValor()){
+                                auto.setUbicacion(ubicaciones.get(0));
+                                ubicaciones.remove(0);
+                                if(ubicaciones.size() == 0) return;
+                            } else trasladarX(l);
+                        }
+                    } else {
+                        if((auto.getUbicacion().getValor() - value) <= ubicaciones.get(0).getValor()){
+                            auto.setUbicacion(ubicaciones.get(0));
+                            ubicaciones.remove(0);
+                            if(ubicaciones.size() == 0) return;
+                        } else trasladarY(-l);
+                    }
+                } // Caso 1aab que [(A.valor + K) < (B.valor)]
+            } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
+                trasladarY(value);
+            } else {
+                long l = value - Math.abs(auto.getUbicacion().getValor()-ubicaciones.get(0).getValor());
+                auto.setUbicacion(ubicaciones.get(0));
+                ubicaciones.remove(0);
+                if(ubicaciones.size() == 0) return;
+                // Se debe sumar restar el restante valor "l"
+                if(ubicaciones.get(0).getCalle().getNombre().contains("Horizontal")){
+                    long k = (auto.getUbicacion().getCalle().getId() - 1) * 100;
+                    auto.setUbicacion(new Ubicacion(application.getCiudad().indexOf(auto.getUbicacion().aCoordenadas(),
+                            Calle.ORIENTACION_HORIZONTAL),k));
+                    if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_OESTE){
+                        if((auto.getUbicacion().getValor() - value) <= ubicaciones.get(0).getValor()){
+                            auto.setUbicacion(ubicaciones.get(0));
+                            ubicaciones.remove(0);
+                            if(ubicaciones.size() == 0) return;
+                        } else trasladarX(-l);
+                    } else {
+                        if((auto.getUbicacion().getValor() + value) >= ubicaciones.get(0).getValor()){
+                            auto.setUbicacion(ubicaciones.get(0));
+                            ubicaciones.remove(0);
+                            if(ubicaciones.size() == 0) return;
+                        } else trasladarX(l);
+                    }
+                } else {
+                    if((auto.getUbicacion().getValor() + value) >= ubicaciones.get(0).getValor()){
+                        auto.setUbicacion(ubicaciones.get(0));
+                        ubicaciones.remove(0);
+                        if(ubicaciones.size() == 0) return;
+                    } else trasladarY(l);
+                }
+            }
+        }
+    }
+    public void setDestino(Ubicacion ubicacion){
+        auto.setDestino(ubicacion);
+        nodoMaestro.work(auto.getDestino());
+        ubicaciones = nodoMaestro.getCaminosConUbicaciones();
+        ubicaciones.remove(0);
+    }
+    public void simular() {
+        timer.schedule(this.timerTask,0, 1000);
+    }
+    public long getPrioridad() {
+        return prioridad;
+    }
+    public Persona getPersona() {
+        return persona;
+    }
+    public void setPersona(Persona persona) {
+        this.persona = persona;
+    }
+    public Timer getTimer() {
+        return timer;
+    }
+    public void setTimer(Timer timer) {
+        this.timer = timer;
+    }
+    public TimerTask getTimerTask() {
+        return timerTask;
+    }
+    public void setTimerTask(TimerTask timerTask) {
+        this.timerTask = timerTask;
+    }
+    public boolean isSimular() {
+        return simular;
+    }
+    public void setSimular(boolean simular) {
+        this.simular = simular;
     }
 }

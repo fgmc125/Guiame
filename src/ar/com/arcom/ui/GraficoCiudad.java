@@ -14,6 +14,7 @@ import static javax.swing.WindowConstants.DISPOSE_ON_CLOSE;
 
 public class GraficoCiudad extends JComponent {
     private Application application;
+    private List<Dibujable> dibujables;
 
     public boolean drawPointA, drawPointB;
     public int x,y,a,b;
@@ -26,17 +27,15 @@ public class GraficoCiudad extends JComponent {
     private Ubicacion ubicacionDesde, ubicacionHasta;
 
 
-    private List<GraficoAuto> graficoAutoList;
-
-
     public GraficoCiudad(long widthBox, long heightBox, Application application) {
         super();
         this.setLayout(null);
         this.application = application;
+        dibujables = new ArrayList<>();
+
         drawPointA = false;
         this.widthBox = widthBox +1;
         this.heightBox = heightBox +1;
-        graficoAutoList = new ArrayList<>();
         desde = "";
         hasta = "";
 
@@ -70,8 +69,9 @@ public class GraficoCiudad extends JComponent {
         panel_1_1.add(lblNewLabel_2);
 
         JCheckBox chckbxNewCheckBox_1 = new JCheckBox("La más corta");
-        chckbxNewCheckBox_1.setSelected(true);
+        chckbxNewCheckBox_1.setSelected(false);
         chckbxNewCheckBox_1.setBounds(12, 139, 100, 21);
+        chckbxNewCheckBox_1.setEnabled(false);
         panel_1_1.add(chckbxNewCheckBox_1);
 
         ftf_desde = new JFormattedTextField();
@@ -100,6 +100,7 @@ public class GraficoCiudad extends JComponent {
         btnNewButton_1_1.setBounds(118, 138, 100, 21);
         panel_1_1.add(btnNewButton_1_1);
     }
+
     public void paintComponent(Graphics g){
         super.paintComponent(g);
         Graphics2D graphics2D = (Graphics2D)g;
@@ -142,15 +143,39 @@ public class GraficoCiudad extends JComponent {
             graphics2D.setColor(Color.RED);
             graphics2D.fillPolygon(new int[]{a,a+6,a-6},new int[]{b,b-16,b-16},3);
         }
-        /*for (GraficoAuto graficoAuto : graficoAutoList) {
-            graficoAuto.draw(g);
-        }*/
-        dibujanodos(g);
 
+        for(Dibujable dibujable : dibujables) dibujable.dibujar(g);
     }
+
+    public List<Dibujable> getDibujables() {
+        return dibujables;
+    }
+
+    public void setDibujables(List<Dibujable> dibujables) {
+        this.dibujables = dibujables;
+        repaint();
+    }
+
+    public void addDibujables(Dibujable dibujable){
+        dibujables.add(dibujable);
+    }
+
+    public void addAllDibujables(List<Dibujable> dibujables){
+        this.dibujables.addAll(dibujables);
+    }
+
+    public void remove(int index){
+        dibujables.remove(index);
+    }
+
+    public void clear(){
+        dibujables.clear();
+    }
+
     public void dibujanodos(Graphics g){
         Graphics2D graphics2D = (Graphics2D)g;
         int[] au;
+
         if(ubicacionDesde != null){
             au = coordenadaMapaEnGraficas(ubicacionDesde.aCoordenadas());
             graphics2D.setColor(Color.BLACK);
@@ -173,10 +198,6 @@ public class GraficoCiudad extends JComponent {
         graphics2D.fillPolygon(new int[]{x,x-6,x+6},new int[]{y+3,y-4,y-4},3);
     }
 
-    public void setGraficoAutoList(List<GraficoAuto> graficoAutoList) {
-        this.graficoAutoList = graficoAutoList;
-    }
-
     public void setVisibleInternalFrame(boolean valor){
         internalFrame.setVisible(valor);
     }
@@ -186,6 +207,7 @@ public class GraficoCiudad extends JComponent {
     public void setHeightBox(long heightBox) {
         this.heightBox = heightBox +1;
     }
+
     public void setXY(int x, int y) {
         this.x = x; this.y = y;
         setDesde();
@@ -210,7 +232,7 @@ public class GraficoCiudad extends JComponent {
         if(a%25 == 0) hasta = "Destino: Calle Vertical [" + a/25 + "] al " + (int)(((b-25)/25f)*100f);
         else if(b%25 == 0) hasta = "Destino: Calle Horizontal [" + b/25 + "] al " + (int)(((a-25)/25f)*100f);
     }
-    public double  getWidthBox() {
+    public double getWidthBox() {
         return widthBox-1;
     }
     public double getHeightBox() {
@@ -227,10 +249,13 @@ public class GraficoCiudad extends JComponent {
     public int [] coordenadaMapaEnGraficas(int x,int y){
         return new int[]{(int)(((x/100f)*25f)+25),(int)(((y/100f)*25f)+25)};
     }
-    public int [] coordenadaMapaEnGraficas(Coordenada coordenada){
+    public static int [] coordenadaMapaEnGraficas(Coordenada coordenada){
         return new int[]{(int)(((coordenada.getX()/100f)*25f)+25),(int)(((coordenada.getY()/100f)*25f)+25)};
     }
 
+    public JInternalFrame getInternalFrame() {
+        return internalFrame;
+    }
 
     class EventoBoton implements ActionListener {
         public void actionPerformed(ActionEvent e) {

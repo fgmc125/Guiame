@@ -1,6 +1,8 @@
 package ar.com.arcom.bin;
 
-public class Auto {
+import java.awt.*;
+
+public class Auto{
     private static long idCount = 0;
     private long id, largo;
     private Ubicacion ubicacion, destino;
@@ -18,7 +20,7 @@ public class Auto {
         sePuedeMover = false;
         largo = 5;
         aceleracion = 5;
-        velocidadDeMovimiento = 5;
+        velocidadDeMovimiento = 50;
         velocidadDeFreno = 5;
         velocidadDeGiro = 5;
     }

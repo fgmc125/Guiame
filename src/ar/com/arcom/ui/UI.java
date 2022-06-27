@@ -1,10 +1,7 @@
 package ar.com.arcom.ui;
 
 import ar.com.arcom.Application;
-import ar.com.arcom.bin.Auto;
-import ar.com.arcom.bin.Ciudad;
-import ar.com.arcom.bin.Coordenada;
-import ar.com.arcom.bin.Ubicacion;
+import ar.com.arcom.bin.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -15,17 +12,15 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 import java.util.TimerTask;
 
 public class UI extends JFrame {
     private Application application;
     // Atributos principales
     private GraficoCiudad graficoCiudad;
-    private List<GraficoAuto> graficoAutoList;
-    /*
-    private List<GraficoPersona> listaGraficoPersonas;
-    private List<GraficoAuto> listaGraficoAutos;
-    */
+    private List<Dibujable> graficoAutoList;
+    private List<Dibujable> graficoPersonaList;
 
     // Atributos extra
     private boolean refresh;
@@ -40,10 +35,35 @@ public class UI extends JFrame {
     private ArrayList<JMenuItem> menuItemArrayList;
     // Fin atributos para MenuBar
 
+    // Atriutos para el reloj
+    private Timer timer;
+    private Long segundos;
+    private TimerTask timerTask;
+
     public UI(Application application) throws HeadlessException {
         super();
         this.application = application;
         initialize();
+
+        // Crea el reloj
+        segundos = 0L;
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (segundos > Long.MAX_VALUE-1) segundos = 0L;
+                else segundos++;
+                setTextBarraEstado(String.valueOf((segundos)));
+            }
+        };
+    }
+
+    public List<Dibujable> getGraficoPersonaList() {
+        return graficoPersonaList;
+    }
+
+    public GraficoCiudad getGraficoCiudad() {
+        return graficoCiudad;
     }
 
     private void initialize(){
@@ -131,17 +151,18 @@ public class UI extends JFrame {
     }
 
     public void createPeople(int i) {
+        graficoPersonaList = new ArrayList<>();
         application.inicializarListaPersonasAleatorio(i);
+        for(Persona persona: application.getPersonas()) graficoPersonaList.add(new GraficoPersona(persona));
+        graficoCiudad.addAllDibujables(graficoPersonaList);
         createCars(i);
     }
-
     public void createCars(int i) {
         graficoAutoList = new ArrayList<>();
         application.inicializarListaAutos(i);
-        for(Auto auto: application.getAutos()) graficoAutoList.add(new GraficoAuto(auto));
-        graficoCiudad.setGraficoAutoList(graficoAutoList);
+        for(Auto auto: application.getAutos()) graficoAutoList.add(new GraficoAuto(auto, application));
+        graficoCiudad.addAllDibujables(graficoAutoList);
     }
-
     public void createCity(long width, long height){
         if(graficoCiudad !=null){
             graficoCiudad.setWidthBox(width);
@@ -161,17 +182,20 @@ public class UI extends JFrame {
     public UI getThis(){
         return this;
     }
-
     public Application getApplication() {
         return application;
     }
-
     public void salir(){
 
     }
-
-    public List<GraficoAuto> getGraficoAutoList() {
+    public List<Dibujable> getGraficoAutoList() {
         return graficoAutoList;
+    }
+
+    public void simular(TimerTask timerTask) {
+        //if(timer.) timer.cancel();
+        this.timerTask = timerTask;
+        timer.schedule(this.timerTask,0, 1000);
     }
 
     private class EventoBoton implements ActionListener {
@@ -191,7 +215,7 @@ public class UI extends JFrame {
             } else if(ac.equals("cmd_panel de personas")) {
                 graficoCiudad.displayInternalFrame(new InternalFramePersonas("Panel de Personas"));
             } else if(ac.equals("cmd_panel de autos")) {
-                graficoCiudad.displayInternalFrame(new InternalFramePersonas("Panel de Autos"));
+                graficoCiudad.displayInternalFrame(new InternalFrameAutos("Panel de Autos", application));
             } else if(ac.equals("cmd_controles")) {
                 graficoCiudad.displayInternalFrame(new InternalFramePersonas("Controles"));
             } else if(ac.equals("cmd_acerca de...")) {
@@ -211,22 +235,17 @@ public class UI extends JFrame {
                 graficoCiudad.creaInternalFrameDefault();
                 graficoCiudad.setVisibleInternalFrame(true);
             } else if(ac.equals("cmd_simular")) {
-                application.simular(new TimerTask() {
-                    @Override
-                    public void run() {
-
-                    }
-                });
+                ((GraficoAuto)graficoAutoList.get(0)).setDestino(
+                        ((GraficoPersona)graficoPersonaList.get(0)).getPersona().getUbicacion()
+                );
+                simular(timerTask);
             }
-
         }
     }
 
     public class EventoRaton extends MouseAdapter {
         private static int aux_ancho = 0;
         private static int aux_alto = 0;
-        private static float aux_posX=0;
-        private static float aux_posY=0;
         private java.awt.Point point;
 
         public EventoRaton(Point point) {
@@ -238,8 +257,8 @@ public class UI extends JFrame {
                 aux_ancho = 25;
                 aux_alto = 25;
             }
-            aux_posX = (float)((MouseInfo.getPointerInfo().getLocation().getX() - contentPane.getLocationOnScreen().getX())/25);
-            aux_posY = (float)((MouseInfo.getPointerInfo().getLocation().getY() - contentPane.getLocationOnScreen().getY())/25);
+            float aux_posX = (float) ((MouseInfo.getPointerInfo().getLocation().getX() - contentPane.getLocationOnScreen().getX()) / 25);
+            float aux_posY = (float) ((MouseInfo.getPointerInfo().getLocation().getY() - contentPane.getLocationOnScreen().getY()) / 25);
 
            /* double tempX = MouseInfo.getPointerInfo().getLocation().getX();
             double tempY = MouseInfo.getPointerInfo().getLocation().getY();
@@ -252,7 +271,7 @@ public class UI extends JFrame {
 
             //JOptionPane.showMessageDialog(null, x_1 + " / " + y_1);*/
 
-            int[] aux = verifica((int)(aux_posX*25)-5, (int) (aux_posY*25)-5);
+            int[] aux = verifica((int)(aux_posX *25)-5, (int) (aux_posY *25)-5);
 
             if(aux[0] >= 25 && aux[1] >= 25 && aux[0] <= graficoCiudad.getWidthBox()*25 && aux[1] <= graficoCiudad.getHeightBox()*25){
                 if(graficoCiudad.ftf_desde.isFocusOwner()) {

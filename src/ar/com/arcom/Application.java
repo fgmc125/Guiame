@@ -13,10 +13,7 @@ public class Application {
     private ArrayList<Persona> personas;
     private ArrayList<Auto> autos;
 
-    // Atriutos para el reloj
-    private Timer timer;
-    private Long segundos;
-    private TimerTask timerTask;
+
 
     // Atributos extra
     private UI UI;
@@ -26,18 +23,6 @@ public class Application {
     public Application(){
         helperHandler = new HelperHandler();
         UI = new UI(this);
-
-        // Crea el reloj
-        segundos = 0L;
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (segundos > Long.MAX_VALUE-1) segundos = 0L;
-                else segundos++;
-                UI.setTextBarraEstado(String.valueOf((segundos)));
-            }
-        };
     }
 
     // Métodos
@@ -65,20 +50,11 @@ public class Application {
         this.autos = autos;
     }
 
-    public Long getSegundos() {
-        return segundos;
-    }
-
-    public void setSegundos(Long segundos) {
-        this.segundos = segundos;
-    }
-
     public ar.com.arcom.ui.UI getUI() {
         return UI;
     }
 
     public void play(){
-        timer.schedule(timerTask,0, 1000);
         UI.setVisible(true);
     }
 
@@ -119,17 +95,13 @@ public class Application {
             aux = random.nextLong(ciudad.getAncho() + ciudad.getAlto());
             calle = ciudad.getCalle((int)aux);
 
-            if (calle.getOrientacion() == 'H') aux = random.nextLong(ciudad.getAncho());
-            else aux = random.nextLong(ciudad.getAlto());
+            if (calle.getOrientacion() == 'H') aux = random.nextLong(ciudad.getAncho()*25);
+            else aux = random.nextLong(ciudad.getAlto()*25);
 
             Ubicacion ubicacion = new Ubicacion(calle, aux);
             autos.add(new Auto(ubicacion));
         }
     }
 
-    public void simular(TimerTask timerTask) {
-        timer.cancel();
-        this.timerTask = timerTask;
-        timer.schedule(this.timerTask,0, 1000);
-    }
+
 }

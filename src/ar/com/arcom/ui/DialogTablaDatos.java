@@ -99,7 +99,7 @@ public class DialogTablaDatos extends JDialog {
         defaultTableModelCalles = new DefaultTableModel(
                 createListCalles(),
                 new String[] {
-                        "ID", "ORIENTACION", "SENTIDO"
+                        "NOMBRE", "ORIENTACION", "SENTIDO"
                 }
         );
 
@@ -131,7 +131,7 @@ public class DialogTablaDatos extends JDialog {
 
         for(int i = 0; i < objects.length; i++){
             objects[i] = new Object[]{personaList.get(i).getId(),
-                    personaList.get(i).getUbicacion().getCalle().getNombre() + " " + personaList.get(i).getUbicacion().getCalle().getId() + " al " + personaList.get(i).getUbicacion().getValor(),
+                    personaList.get(i).getUbicacion().getCalle().getNombre() + " al " + personaList.get(i).getUbicacion().getValor(),
                     (personaList.get(i).getDestino() != null) ? personaList.get(i).getDestino().getCalle().getNombre() + " " + personaList.get(i).getDestino().getCalle().getId() + " al " + personaList.get(i).getDestino().getValor() : null,
                     (Boolean) personaList.get(i).isEnAuto()
             };
@@ -146,8 +146,8 @@ public class DialogTablaDatos extends JDialog {
 
         for(int i = 0; i < objects.length; i++){
             objects[i] = new Object[]{autoList.get(i).getId(),
-                    autoList.get(i).getUbicacion().getCalle().getNombre() + " " + autoList.get(i).getUbicacion().getCalle().getId() + " al " + autoList.get(i).getUbicacion().getValor(),
-                    (autoList.get(i).getDestino() != null) ? autoList.get(i).getDestino().getCalle().getNombre() + " " + autoList.get(i).getDestino().getCalle().getId() + " al " + autoList.get(i).getDestino().getValor() : null,
+                    autoList.get(i).getUbicacion().getCalle().getNombre() + " al " + autoList.get(i).getUbicacion().getValor(),
+                    (autoList.get(i).getDestino() != null) ? autoList.get(i).getDestino().getCalle().getNombre() + " al " + autoList.get(i).getDestino().getValor() : null,
                     (Boolean) autoList.get(i).isEnRuta()
             };
         }
@@ -161,7 +161,7 @@ public class DialogTablaDatos extends JDialog {
 
         for(int i = 0; i < objects.length; i++){
             objects[i] = new Object[]{
-                    calleList.get(i).getId(),
+                    calleList.get(i).getNombre(),
                     calleList.get(i).getOrientacion(),
                     calleList.get(i).getSentido()
             };
