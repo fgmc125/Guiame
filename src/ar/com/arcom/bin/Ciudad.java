@@ -32,31 +32,24 @@ public class Ciudad {
     public List<Calle> getListaDeCalles() {
         return listaDeCalles;
     }
-
     public void setListaDeCalles(List<Calle> listaDeCalles) {
         this.listaDeCalles = listaDeCalles;
     }
-
     public long getAlto() {
         return alto;
     }
-
     public void setAlto(long alto) {
         this.alto = alto;
     }
-
     public long getAncho() {
         return ancho;
     }
-
     public void setAncho(long ancho) {
         this.ancho = ancho;
     }
-
     public Calle getCalle(int indice) {
         return listaDeCalles.get(indice);
     }
-
     public int indexOf(int x, int y){
         int k = ((x % 100 == 0) ? (x / 100) : (y / 100));
         char orientation = (x % 100 == 0) ? 'V': 'H';
@@ -66,12 +59,10 @@ public class Ciudad {
 
         return (i < listaDeCalles.size()) ? i: -1;
     }
-
     public Calle indexOf(Coordenada coordenada){
         int i = indexOf((int)coordenada.getX(), (int)coordenada.getY());
         return (i != -1) ? listaDeCalles.get(i) : null;
     }
-
     public Calle indexOf(Coordenada coordenada, char orientacion){
         int k = 0;
         String nombre = null;

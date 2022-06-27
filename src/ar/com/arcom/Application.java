@@ -24,49 +24,24 @@ public class Application {
     public Ciudad getCiudad() {
         return ciudad;
     }
-
     public void setCiudad(Ciudad ciudad) {
         this.ciudad = ciudad;
     }
-
     public ArrayList<Persona> getPersonas() {
         return personas;
     }
-
     public void setPersonas(ArrayList<Persona> personas) {
         this.personas = personas;
     }
-
     public ArrayList<Auto> getAutos() {
         return autos;
     }
-
     public void setAutos(ArrayList<Auto> autos) {
         this.autos = autos;
     }
-
     public ar.com.arcom.ui.UI getUI() {
         return UI;
     }
-
-    public void play(){
-        UI.setVisible(true);
-
-    }
-
-    public final static void main(String[] args) {
-        EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                try {
-                    Application application = new Application();
-                    application.play();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
     public void inicializarListaPersonasAleatorio(long valor) {
         personas = new ArrayList<>();
         Random random = new Random();
@@ -84,7 +59,6 @@ public class Application {
             personas.add(new Persona(ubicacion, false));
         }
     }
-
     public void inicializarListaAutos(int valor) {
         autos = new ArrayList<>();
         Random random = new Random();
@@ -101,6 +75,21 @@ public class Application {
             autos.add(new Auto(ubicacion));
         }
     }
+    public void play(){
+        UI.setVisible(true);
 
+    }
 
+    public final static void main(String[] args) {
+        EventQueue.invokeLater(new Runnable() {
+            public void run() {
+                try {
+                    Application application = new Application();
+                    application.play();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 }

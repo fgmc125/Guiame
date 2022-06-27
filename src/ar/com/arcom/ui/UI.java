@@ -66,7 +66,6 @@ public class UI extends JFrame {
     public List<Dibujable> getGraficoPersonaList() {
         return graficoPersonaList;
     }
-
     public GraficoCiudad getGraficoCiudad() {
         return graficoCiudad;
     }
@@ -154,7 +153,6 @@ public class UI extends JFrame {
 
         if(application.getCiudad().getAncho() > 0 && application.getCiudad().getAlto() > 0) graficoCiudad.setVisibleInternalFrame(true);
     }
-
     public void createPeople(int i) {
         graficoPersonaList = new ArrayList<>();
         application.inicializarListaPersonasAleatorio(i);
@@ -183,7 +181,6 @@ public class UI extends JFrame {
             graficoCiudad.setPreferredSize(new Dimension((int)width*26,(int)height*26));
         }
     }
-
     public UI getThis(){
         return this;
     }
@@ -196,12 +193,10 @@ public class UI extends JFrame {
     public List<Dibujable> getGraficoAutoList() {
         return graficoAutoList;
     }
-
     public void simular(TimerTask timerTask) {
         this.timerTask = timerTask;
         timer.schedule(this.timerTask,0, 1000);
     }
-
     private class EventoBoton implements ActionListener {
         private JDialog dialog;
 
@@ -245,7 +240,6 @@ public class UI extends JFrame {
             }
         }
     }
-
     public class EventoRaton extends MouseAdapter {
         private static int aux_ancho = 0;
         private static int aux_alto = 0;

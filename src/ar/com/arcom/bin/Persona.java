@@ -14,7 +14,6 @@ public class Persona {
         id = cnt;
         cnt++;
     }
-
     public Persona(Ubicacion ubicacion, boolean enAuto) {
         this.ubicacion = ubicacion;
         this.enAuto = enAuto;
