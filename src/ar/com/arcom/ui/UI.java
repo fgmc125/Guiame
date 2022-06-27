@@ -54,8 +54,13 @@ public class UI extends JFrame {
                 if (segundos > Long.MAX_VALUE-1) segundos = 0L;
                 else segundos++;
                 setTextBarraEstado(String.valueOf((segundos)));
+
+                if(application.getUI().getGraficoCiudad().getInternalFrame().isVisible() &&
+                        application.getUI().getGraficoCiudad().getInternalFrame().getTitle().equals("Panel de Autos"))
+                    ((InternalFrameAutos)(application.getUI().getGraficoCiudad().getInternalFrame())).recargar();
             }
         };
+        simular(timerTask);
     }
 
     public List<Dibujable> getGraficoPersonaList() {
@@ -193,7 +198,6 @@ public class UI extends JFrame {
     }
 
     public void simular(TimerTask timerTask) {
-        //if(timer.) timer.cancel();
         this.timerTask = timerTask;
         timer.schedule(this.timerTask,0, 1000);
     }
@@ -221,7 +225,7 @@ public class UI extends JFrame {
             } else if(ac.equals("cmd_acerca de...")) {
                 graficoCiudad.displayInternalFrame(new InternalFramePersonas("Acerca de..."));
             } else if(ac.equals("cmd_nueva ciudad")) {
-                createPanel();
+                //createPanel();
             } else if(ac.equals("cmd_tablas de datos")) {
                 if (dialog == null) {
                     dialog = new DialogTablaDatos(getThis());
@@ -235,10 +239,9 @@ public class UI extends JFrame {
                 graficoCiudad.creaInternalFrameDefault();
                 graficoCiudad.setVisibleInternalFrame(true);
             } else if(ac.equals("cmd_simular")) {
-                ((GraficoAuto)graficoAutoList.get(0)).setDestino(
-                        ((GraficoPersona)graficoPersonaList.get(0)).getPersona().getUbicacion()
-                );
-                simular(timerTask);
+                for (Dibujable graficoAuto : graficoAutoList) {
+                    ((GraficoAuto) graficoAuto).simular();
+                }
             }
         }
     }

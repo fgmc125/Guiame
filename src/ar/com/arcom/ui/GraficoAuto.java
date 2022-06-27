@@ -27,16 +27,6 @@ public class GraficoAuto implements Dibujable, Movedizo {
         this.application = application;
         this.auto = auto;
         nodoMaestro = new NodoMaestro(this.application.getCiudad(), this.auto.getUbicacion());
-
-        // Crea el reloj
-        timer = new Timer();
-        timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (simular) moverse(this);
-                else timerTask.cancel();
-            }
-        };
     }
 
     public int [] coordenadaMapaEnGraficas(Coordenada coordenada){
@@ -114,82 +104,9 @@ public class GraficoAuto implements Dibujable, Movedizo {
             timer.cancel();
             timer.purge();
         }
-        if(application.getUI().getGraficoCiudad().getInternalFrame().isVisible() &&
-                application.getUI().getGraficoCiudad().getInternalFrame().getTitle().equals("Panel de Autos"))
-            ((InternalFrameAutos)(application.getUI().getGraficoCiudad().getInternalFrame())).recargar();
-
         application.getUI().getGraficoCiudad().repaint();
     }
 
-    private void go() {
-        long value = (long) Math.abs(auto.getVelocidadDeMovimiento()*(25f/100f));
-
-        if((auto.getUbicacion().getCalle().getNombre().contains("Horizontal") && ubicaciones.get(0).getCalle().getNombre().contains("Horizontal")) ||
-                (auto.getUbicacion().getCalle().getNombre().contains("Vertical") && ubicaciones.get(0).getCalle().getNombre().contains("Vertical"))){
-            if(auto.getUbicacion().getCalle().getNombre().contains("Horizontal") && ubicaciones.get(0).getCalle().getNombre().contains("Horizontal")){
-                if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_OESTE){
-                    if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
-                        trasladarX(-value);
-                    } else {
-
-                        getAuto().setUbicacion(ubicaciones.get(0));
-                        ubicaciones.remove(0);
-                    }
-                } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
-                    trasladarX(value);
-                }  else {
-                    getAuto().setUbicacion(ubicaciones.get(0));
-                    ubicaciones.remove(0);
-                }
-            } else if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_NORTE){
-                if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
-                    trasladarX(-value);
-                } else {
-                    getAuto().setUbicacion(ubicaciones.get(0));
-                    ubicaciones.remove(0);
-                }
-            } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
-                trasladarX(value);
-            } else {
-                getAuto().setUbicacion(ubicaciones.get(0));
-                ubicaciones.remove(0);
-            }
-        } if(auto.getUbicacion().getCalle().getNombre().contains("Horizontal")){// Caso que la ubicacion actual sea horizontal y necesite transformarse a una vertical
-            long valor = (auto.getUbicacion().getCalle().getId()-1)*100;
-            auto.setUbicacion(new Ubicacion(application.getCiudad().indexOf(auto.getUbicacion().aCoordenadas(),Calle.ORIENTACION_VERTICAL), valor));
-
-            if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_NORTE){
-                if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
-                    trasladarX(-value);
-                } else {
-                    getAuto().setUbicacion(ubicaciones.get(0));
-                    ubicaciones.remove(0);
-                }
-            } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
-                trasladarX(value);
-            } else {
-                getAuto().setUbicacion(ubicaciones.get(0));
-                ubicaciones.remove(0);
-            }
-        } else { // Caso que la ubicacion actual sea vertical y necesite transformarse a una horizontal
-            long valor = (auto.getUbicacion().getCalle().getId()-1)*100;
-            auto.setUbicacion(new Ubicacion(application.getCiudad().indexOf(auto.getUbicacion().aCoordenadas(),Calle.ORIENTACION_HORIZONTAL), valor));
-
-            if(auto.getUbicacion().getCalle().getSentido() == Calle.DIR_OESTE){
-                if((auto.getUbicacion().getValor() - value) > ubicaciones.get(0).getValor()){
-                    trasladarX(-value);
-                } else {
-                    getAuto().setUbicacion(ubicaciones.get(0));
-                    ubicaciones.remove(0);
-                }
-            } else if((auto.getUbicacion().getValor() + value) < ubicaciones.get(0).getValor()){
-                trasladarX(value);
-            }  else {
-                getAuto().setUbicacion(ubicaciones.get(0));
-                ubicaciones.remove(0);
-            }
-        }
-    }
     private void ir() {
         long value = (long) Math.abs(auto.getVelocidadDeMovimiento()*(25f/100f));
 
@@ -320,6 +237,18 @@ public class GraficoAuto implements Dibujable, Movedizo {
         ubicaciones.remove(0);
     }
     public void simular() {
+        setSimular(true);
+        setDestino(((GraficoPersona)application.getUI().getGraficoPersonaList().get((int)auto.getId())).getPersona().getUbicacion());
+
+        // Crea el reloj
+        timer = new Timer();
+        timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (simular) moverse(this);
+                else timerTask.cancel();
+            }
+        };
         timer.schedule(this.timerTask,0, 1000);
     }
     public long getPrioridad() {

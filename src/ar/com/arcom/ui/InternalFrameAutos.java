@@ -186,17 +186,16 @@ public class InternalFrameAutos extends JInternalFrame implements ItemListener {
             if(ac.equals("cmd_mod")) {
 
             } else if(ac.equals("cmd_simular")) {
-                ((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).setSimular(true);
-                ((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).setDestino(
+                /*((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).setDestino(
                         ((GraficoPersona)application.getUI().getGraficoPersonaList().get(index)).getPersona().getUbicacion()
-                );
+                );*/
                 recargar();
                 ((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).simular();
             } else if(ac.equals("cmd_parar")) {
+                ((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).setSimular(false);
                 ((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).getTimerTask().cancel();
                 ((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).getTimer().cancel();
                 ((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).getTimer().purge();
-                ((GraficoAuto)application.getUI().getGraficoAutoList().get(index)).setSimular(false);
                 recargar();
             }
         }

@@ -1,7 +1,6 @@
 package ar.com.arcom;
 
 import ar.com.arcom.bin.*;
-import ar.com.arcom.handlers.HelperHandler;
 import ar.com.arcom.ui.UI;
 
 import java.awt.*;
@@ -13,15 +12,11 @@ public class Application {
     private ArrayList<Persona> personas;
     private ArrayList<Auto> autos;
 
-
-
     // Atributos extra
     private UI UI;
-    private HelperHandler helperHandler;
 
     // Constructores
     public Application(){
-        helperHandler = new HelperHandler();
         UI = new UI(this);
     }
 
@@ -56,6 +51,7 @@ public class Application {
 
     public void play(){
         UI.setVisible(true);
+
     }
 
     public final static void main(String[] args) {
@@ -79,8 +75,11 @@ public class Application {
         for(int i = 0; i < valor;i++){
             aux = random.nextLong(ciudad.getAncho() + ciudad.getAlto());
             calle = ciudad.getCalle((int)aux);
-            Ubicacion ubicacion = new Ubicacion(ciudad.getCalle((int)aux),
-                    (calle.getOrientacion() == 'H') ? random.nextLong(ciudad.getAncho()) : random.nextLong(ciudad.getAlto()));
+
+            if (calle.getOrientacion() == 'H') aux = random.nextLong(ciudad.getAncho()*25);
+            else aux = random.nextLong(ciudad.getAlto()*25);
+
+            Ubicacion ubicacion = new Ubicacion(calle, aux);
 
             personas.add(new Persona(ubicacion, false));
         }

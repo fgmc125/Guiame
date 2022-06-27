@@ -179,4 +179,7 @@ public class DialogTablaDatos extends JDialog {
             }
         }
     }
+    public void recargar() {
+
+    }
 }
